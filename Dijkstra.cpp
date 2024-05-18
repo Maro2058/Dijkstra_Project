@@ -93,6 +93,21 @@ void Graph::shortestPath(int src)
     for (int i = 0; i < V; ++i)
         printf("%d \t\t %d\n", i, dist[i]);
 }
+Graph* createNewGraph() {
+
+}
+void saveGraph(Graph* graph) {
+
+}
+void displayGraphs() {
+
+}
+Graph loadGraph() {
+    displayGraphs();
+}
+void editGraph() {
+    displayGraphs();
+}
 
 // Driver program to test methods of graph class
 int main()
