@@ -14,7 +14,7 @@ class Graph {
 
     // In a weighted graph, we need to store vertex
     // and weight pair for every edge
-    list<pair<int, int> >* adj;
+    list<pair<int, int>>* adj;
 
 public:
     Graph(int V); // Constructor
@@ -46,8 +46,8 @@ void Graph::shortestPath(int src)
     // are being preprocessed. This is weird syntax in C++.
     // Refer below link for details of this syntax
     // https://www.geeksforgeeks.org/implement-min-heap-using-stl/
-    priority_queue<iPair, vector<iPair>, greater<iPair> >
-        pq;
+    priority_queue<iPair, vector<iPair>, greater<iPair>> pq;
+
 
     // Create a vector for distances and initialize all
     // distances as infinite (INF)
@@ -95,16 +95,22 @@ void Graph::shortestPath(int src)
 }
 Graph* createNewGraph() {
 
+    //return newGraph;
 }
+
 void saveGraph(Graph* graph) {
 
 }
+
 void displayGraphs() {
 
 }
-Graph loadGraph() {
+
+Graph* loadGraph() {
     displayGraphs();
+    //return graph;
 }
+
 void editGraph() {
     displayGraphs();
 }
@@ -131,8 +137,7 @@ int main()
     g.addEdge(6, 7, 1);
     g.addEdge(6, 8, 6);
     g.addEdge(7, 8, 7);
-
-    g.shortestPath(0);
+    g.shortestPath(1);
 
     return 0;
 }
