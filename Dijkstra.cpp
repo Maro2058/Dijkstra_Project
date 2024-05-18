@@ -22,20 +22,8 @@ public:
     // function to add an edge to graph
     void addEdge(int u, int v, int w);
 
-    // function to remove an edge from the graph
-    void removeEdge(int u, int v);
-
     // prints shortest path from s
     void shortestPath(int s);
-
-    // Save graph to a file
-    void saveGraph(const string& filename);
-
-    // Load graph from a file
-    void loadGraph(const string& filename);
-
-    // Display the graph
-    void displayGraph();
 };
 
 // Allocates memory for adjacency list
@@ -49,12 +37,6 @@ void Graph::addEdge(int u, int v, int w)
 {
     adj[u].push_back(make_pair(v, w));
     adj[v].push_back(make_pair(u, w));
-}
-
-void Graph::removeEdge(int u, int v)
-{
-    adj[u].remove_if([v](const iPair& pair) { return pair.first == v; });
-    adj[v].remove_if([u](const iPair& pair) { return pair.first == u; });
 }
 
 // Prints shortest paths from src to all other vertices
@@ -111,147 +93,51 @@ void Graph::shortestPath(int src)
     for (int i = 0; i < V; ++i)
         printf("%d \t\t %d\n", i, dist[i]);
 }
-
-// Save graph to a file
-void Graph::saveGraph(const string& filename) {
-    ofstream file(filename);
-    if (file.is_open()) {
-        file << V << endl;
-        for (int u = 0; u < V; ++u) {
-            for (auto v : adj[u]) {
-                file << u << " " << v.first << " " << v.second << endl;
-            }
-        }
-        file.close();
-    } else {
-        cout << "Unable to open file for writing" << endl;
-    }
-}
-
-// Load graph from a file
-void Graph::loadGraph(const string& filename) {
-    ifstream file(filename);
-    if (file.is_open()) {
-        int u, v, w;
-        file >> V;
-        adj = new list<iPair>[V];
-        while (file >> u >> v >> w) {
-            addEdge(u, v, w);
-        }
-        file.close();
-    } else {
-        cout << "Unable to open file for reading" << endl;
-    }
-}
-
 Graph* createNewGraph() {
-    int V;
-    cout << "Enter the number of vertices: ";
-    cin >> V;
-    Graph* newGraph = new Graph(V);
 
-    int E;
-    cout << "Enter the number of edges: ";
-    cin >> E;
-    for (int i = 0; i < E; ++i) {
-        int u, v, w;
-        cout << "Enter edge (u v w): ";
-        cin >> u >> v >> w;
-        newGraph->addEdge(u, v, w);
-    }
-
-    return newGraph;
+    //return newGraph;
 }
 
 void saveGraph(Graph* graph) {
 
 }
 
-void Graph::displayGraph() {
-    for (int u = 0; u < V; ++u) {
-        cout << "Vertex " << u << " makes an edge with\n";
-        for (auto v : adj[u]) {
-            cout << "\tVertex " << v.first << " with weight=" << v.second << endl;
-        }
-        cout << endl;
-    }
+void displayGraphs() {
+
 }
 
 Graph* loadGraph() {
-    displayGraph();
+    displayGraphs();
     //return graph;
 }
 
 void editGraph() {
-    displayGraph();
-}
-
-void interactiveMenu(Graph*& g) {
-    int choice;
-    do {
-        cout << "Menu:\n";
-        cout << "1. Create New Graph\n";
-        cout << "2. Add Edge\n";
-        cout << "3. Remove Edge\n";
-        cout << "4. Display Graph\n";
-        cout << "5. Find Shortest Path\n";
-        cout << "6. Save Graph\n";
-        cout << "7. Load Graph\n";
-        cout << "8. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
-
-        int u, v, w, src;
-        string filename;
-        switch (choice) {
-            case 1:
-                delete g;
-                g = createNewGraph();
-                break;
-            case 2:
-                cout << "Enter edge (u v w): ";
-                cin >> u >> v >> w;
-                g->addEdge(u, v, w);
-                break;
-            case 3:
-                cout << "Enter edge to remove (u v): ";
-                cin >> u >> v;
-                g->removeEdge(u, v);
-                break;
-            case 4:
-                g->displayGraph();
-                break;
-            case 5:
-                cout << "Enter source vertex: ";
-                cin >> src;
-                g->shortestPath(src);
-                break;
-            case 6:
-                cout << "Enter filename to save graph: ";
-                cin >> filename;
-                g->saveGraph(filename);
-                break;
-            case 7:
-                cout << "Enter filename to load graph: ";
-                cin >> filename;
-                g->loadGraph(filename);
-                break;
-            case 8:
-                cout << "Exiting...\n";
-                break;
-            default:
-                cout << "Invalid choice. Please try again.\n";
-        }
-    } while (choice != 8);
+    displayGraphs();
 }
 
 // Driver program to test methods of graph class
 int main()
 {
     // create the graph given in above figure
-    Graph* g = nullptr;
-    interactiveMenu(g);
+    int V = 9;
+    Graph g(V);
 
-    delete g;
+    // making above shown graph
+    g.addEdge(0, 1, 4);
+    g.addEdge(0, 7, 8);
+    g.addEdge(1, 2, 8);
+    g.addEdge(1, 7, 11);
+    g.addEdge(2, 3, 7);
+    g.addEdge(2, 8, 2);
+    g.addEdge(2, 5, 4);
+    g.addEdge(3, 4, 9);
+    g.addEdge(3, 5, 14);
+    g.addEdge(4, 5, 10);
+    g.addEdge(5, 6, 2);
+    g.addEdge(6, 7, 1);
+    g.addEdge(6, 8, 6);
+    g.addEdge(7, 8, 7);
+    g.shortestPath(1);
+
     return 0;
 }
