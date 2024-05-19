@@ -1,5 +1,6 @@
 // Program to find Dijkstra's shortest path using
 // priority_queue in STL
+
 #include <bits/stdc++.h>
 using namespace std;
 #define INF 0x3f3f3f3f
@@ -13,16 +14,18 @@ class Graph {
     int V; // No. of vertices
     // In a weighted graph, we need to store vertex
     // and weight pair for every edge
-    list<pair<int, int>>* adj;
+
 
     map<string, int> nameToIndex;
     map<int, string> indexToName;
 
 public:
+    list<pair<int, int>>* adj;
     Graph(int V); // Constructor
     Graph();
     // function to add an edge to graph
     void addEdge(const string& u, const string& v, int w);
+    void addEdge(int u, int v, int w);
     // function to remove an edge from the graph
     void removeEdge(const string& u, const string& v);
     void printPath(vector<int>& prevVertex, int i);
@@ -31,7 +34,6 @@ public:
     // Save graph to a file
     void saveGraph(const string& filename);
     // Load graph from a file
-    void loadGraph(const string& filename);
     // Display the graph
     void displayGraph();
     void editGraph();
@@ -48,6 +50,7 @@ Graph::Graph(int V)
 
 void Graph::addNodeName(int index, const string& name) {
     nameToIndex[name] = index;
+    // cant add same name or same index!!
     indexToName[index] = name;
 }
 
@@ -56,6 +59,11 @@ void Graph::addEdge(const string& u, const string& v, int w) {
     int vIndex = nameToIndex[v];
     adj[uIndex].push_back(make_pair(vIndex, w));
     adj[vIndex].push_back(make_pair(uIndex, w));
+}
+
+void Graph::addEdge(int u, int v, int w) {
+    adj[u].push_back(make_pair(v, w));
+    adj[v].push_back(make_pair(u, w));
 }
 
 void Graph::removeEdge(const string& u, const string& v) {
@@ -140,13 +148,83 @@ void Graph::shortestPath(const string& s) {
 
 // Save graph to a file
 void Graph::saveGraph(const string& filename) {
+    ofstream outFile(filename);
+    if (!outFile) {
+        cerr << "Error opening file for writing: " << filename << endl;
+        return;
+    }
 
+    // Write number of vertices and edges
+    outFile << V << endl;
+
+    // Write vertex names
+    for (int u = 0; u < V; ++u) {
+        outFile << u << "|" << indexToName[u];
+        for (const auto& v : adj[u]) { //get all the pairs
+            outFile << "|" << v.first << "," << v.second;
+        }
+        outFile << endl;
+    }
+
+    outFile.close();
+    if (outFile.fail()) {
+        cerr << "Error occurred while saving the graph to file." << endl;
+    } else {
+        cout << "Graph saved successfully to " << filename << endl;
+    }
 }
 
-// Load graph from a file
-void Graph::loadGraph(const string& filename) {
+void loadGraph(const string& filename, Graph*& g) {
+    if (g) {
+        delete g;// delete the graph if there is anything in there already
+        g = nullptr;
+    }
+    ifstream inFile(filename);
+    if (!inFile) {
+        cerr << "Error opening file for reading: " << filename << endl;
+        return;
+    }
+    // Read number of vertices
+    int numVertices;
+    inFile >> numVertices;
+    g = new Graph(numVertices);
+    inFile.ignore(numeric_limits<streamsize>::max(), '\n');// Ignore the rest of the line
+    // Read vertex names and edges
+    string line;
+    while (getline(inFile, line)) {
+        stringstream ss(line);
+        string token;
+        vector<string> tokens;
 
+        // Split the line by '|'
+        while (getline(ss, token, '|')) {
+            tokens.push_back(token);
+        }
+
+        // First token is the index
+        int index = stoi(tokens[0]);
+
+        // Second token is the name
+        string name = tokens[1];
+        g->addNodeName(index, name);
+
+        // Remaining tokens are edges
+        for (size_t i = 2; i < tokens.size(); ++i) {
+            stringstream ss1(tokens[i]);
+            string vertex, weight;
+            getline(ss1, vertex, ',');
+            getline(ss1, weight);
+            int vIndex = stoi(vertex);
+            int w = stoi(weight);
+            g->adj[index].push_back(make_pair(vIndex, w));
+        }
+
+    }
+
+    inFile.close();
 }
+
+
 
 Graph* createNewGraph(int V, int E) {
     Graph* newGraph = new Graph(V);
@@ -266,7 +344,7 @@ void interactiveMenu(Graph*& g) {
             case 7:
                 cout << "Enter filename to load graph: ";
                 cin >> filename;
-                g->loadGraph(filename);
+                loadGraph(filename, g);
                 break;
             case 8:
                 cout << "Exiting...\n";

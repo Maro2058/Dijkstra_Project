@@ -25,7 +25,9 @@ The Program should be able to:
   - Change Weight
   - Change Vertex Name
 - Save Graphs to File (Amr Edris)
+    - check if there are same names in the directory to avoid accidental overwritting.
 - Load Graphs from File (Amr Edris)
+    - display the text files and ask the user which one does he want to load.
 - Refactor Code (Everyone)
 - Polish (Everyone)
 - Fix Bugs (Everyone)
