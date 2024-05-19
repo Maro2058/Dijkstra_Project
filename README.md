@@ -14,11 +14,25 @@ The Program should be able to:
 7)	Be Able to Edit Graphs (To Do)
 
 
-TO DO List:
--	Make it so Code shows Path Taken (Mourad Elshorbagy)
--   Take Graphs an input (Youssef Haytham or Zeyad Sameh)
--   Be able to Edit Graphs (Zeyad Sameh or Youssef Haytham)
--   Save Graphs to File (Amr Edris)
--   Load Graphs from File (Amr Edris)
--   Refactor Code (Everyone)
--   Polish (Everyone)
+## To Do List:
+### Essentials
+- Be able to Edit Graphs (Zeyad Sameh or Youssef Haytham)
+- Save Graphs to File (Amr Edris)
+- Load Graphs from File (Amr Edris)
+- Refactor Code (Everyone)
+- Polish (Everyone)
+- Fix Bugs (Everyone)
+- Implement our own Doubly Linked List, as well as Priority Queue (Zeyad & Morad)
+
+### Other Features to Add
+- Make it so Interactive Menu has submenus that give user more info. 
+- Make it so that when the program lists the name of vertices when asking for source
+  in the shortest path function
+- 
+
+
+## Bugs To Fix:
+- Fix infinite loop when inputting string instead of int in all functions 
+- Make it so input for vertex names and other similar things uses getline()
+  instead of cin, so that it takes a whole sentence and not just one word as input 
+- Error handling for all functions

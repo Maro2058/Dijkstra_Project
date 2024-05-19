@@ -15,16 +15,19 @@ class Graph {
     // and weight pair for every edge
     list<pair<int, int>>* adj;
 
+    map<string, int> nameToIndex;
+    map<int, string> indexToName;
+
 public:
     Graph(int V); // Constructor
     Graph();
     // function to add an edge to graph
-    void addEdge(int u, int v, int w);
+    void addEdge(const string& u, const string& v, int w);
     // function to remove an edge from the graph
-    void removeEdge(int u, int v);
+    void removeEdge(const string& u, const string& v);
     void printPath(vector<int>& prevVertex, int i);
     // prints shortest path from s
-    void shortestPath(int s);
+    void shortestPath(const string& s);
     // Save graph to a file
     void saveGraph(const string& filename);
     // Load graph from a file
@@ -32,6 +35,8 @@ public:
     // Display the graph
     void displayGraph();
     void editGraph();
+    void addNodeName(int index, const string& name);
+
 };
 
 // Allocates memory for adjacency list
@@ -41,15 +46,23 @@ Graph::Graph(int V)
     adj = new list<iPair>[V];
 }
 
-void Graph::addEdge(int u, int v, int w)
-{
-    adj[u].push_back(make_pair(v, w));
-    adj[v].push_back(make_pair(u, w));
+void Graph::addNodeName(int index, const string& name) {
+    nameToIndex[name] = index;
+    indexToName[index] = name;
 }
 
-void Graph::removeEdge(int u, int v) {
-    adj[u].remove_if([v](const iPair& pair) { return pair.first == v; });
-    adj[v].remove_if([u](const iPair& pair) { return pair.first == u; });
+void Graph::addEdge(const string& u, const string& v, int w) {
+    int uIndex = nameToIndex[u];
+    int vIndex = nameToIndex[v];
+    adj[uIndex].push_back(make_pair(vIndex, w));
+    adj[vIndex].push_back(make_pair(uIndex, w));
+}
+
+void Graph::removeEdge(const string& u, const string& v) {
+    int uIndex = nameToIndex[u];
+    int vIndex = nameToIndex[v];
+    adj[uIndex].remove_if([vIndex](const iPair& pair) { return pair.first == vIndex; });
+    adj[vIndex].remove_if([uIndex](const iPair& pair) { return pair.first == uIndex; });
 }
 
 void Graph::printPath(vector<int>& prevVertex, int i) {
@@ -58,12 +71,14 @@ void Graph::printPath(vector<int>& prevVertex, int i) {
         return;
     }
     printPath(prevVertex, prevVertex[i]);
-    cout << "->" << i ;
+    cout << "->" << indexToName[i] ;
 
 }
 
 // Prints shortest paths from src to all other vertices
-void Graph::shortestPath(int src) {
+void Graph::shortestPath(const string& s) {
+    int src = nameToIndex[s];
+
     // Create a priority queue to store vertices that
     // are being preprocessed. This is weird syntax in C++.
     // Refer below link for details of this syntax
@@ -116,49 +131,36 @@ void Graph::shortestPath(int src) {
     // Print shortest distances stored in dist[]
     printf("Vertex  Distance from Source  Path\n");
     for (int i = 0; i < V; ++i){
-        printf("%d \t\t %d\t\t", i, dist[i]);
+        cout << indexToName[i] << "\t\t  " << dist[i] << "\t\t";
         printPath(prevVertex, i);
-        printf("\n");
+        cout << endl;
+
     }
 }
 
 // Save graph to a file
 void Graph::saveGraph(const string& filename) {
-    ofstream file(filename);
-    if (file.is_open()) {
-        file << V << endl;
-        for (int u = 0; u < V; ++u) {
-            for (auto v : adj[u]) {
-                file << u << " " << v.first << " " << v.second << endl;
-            }
-        }
-        file.close();
-    } else {
-        cout << "Unable to open file for writing" << endl;
-    }
+
 }
 
 // Load graph from a file
 void Graph::loadGraph(const string& filename) {
-    ifstream file(filename);
-    if (file.is_open()) {
-        int u, v, w;
-        file >> V;
-        adj = new list<iPair>[V];
-        while (file >> u >> v >> w) {
-            addEdge(u, v, w);
-        }
-        file.close();
-    } else {
-        cout << "Unable to open file for reading" << endl;
-    }
+
 }
 
 Graph* createNewGraph(int V, int E) {
     Graph* newGraph = new Graph(V);
 
+    for (int i = 0; i < V; ++i) {
+        string name;
+        cout << "Enter name for vertex " << i << ": ";
+        cin >> name;
+        newGraph->addNodeName(i, name);
+    }
+
     for (int i = 0; i < E; ++i) {
-        int u, v, w;
+        string u, v;
+        int w;
         cout << "Enter edge (u v w): ";
         cin >> u >> v >> w;
         newGraph->addEdge(u, v, w);
@@ -169,9 +171,9 @@ Graph* createNewGraph(int V, int E) {
 
 void Graph::displayGraph() {
     for (int u = 0; u < V; ++u) {
-        cout << "Vertex " << u << " makes an edge with\n";
+        cout << "Vertex " << indexToName[u] << " makes an edge with\n";
         for (auto v : adj[u]) {
-            cout << "\tVertex " << v.first << " with weight=" << v.second << endl;
+            cout << "\tVertex " << indexToName[v.first] << " with weight=" << v.second << endl;
         }
         cout << endl;
     }
@@ -182,22 +184,30 @@ void Graph::editGraph() {
 }
 
 void tempGraph(Graph*& g) {
-    g = createNewGraph(9,0);
-    g->addEdge(0, 1, 4);
-    g->addEdge(0, 7, 8);
-    g->addEdge(1, 2, 8);
-    g->addEdge(1, 7, 11);
-    g->addEdge(2, 3, 7);
-    g->addEdge(2, 8, 2);
-    g->addEdge(2, 5, 4);
-    g->addEdge(3, 4, 9);
-    g->addEdge(3, 5, 14);
-    g->addEdge(4, 5, 10);
-    g->addEdge(5, 6, 2);
-    g->addEdge(6, 7, 1);
-    g->addEdge(6, 8, 6);
-    g->addEdge(7, 8, 7);
-    cout << "test";
+    g = createNewGraph(9, 0);
+    g->addNodeName(0, "A");
+    g->addNodeName(1, "B");
+    g->addNodeName(2, "C");
+    g->addNodeName(3, "D");
+    g->addNodeName(4, "E");
+    g->addNodeName(5, "F");
+    g->addNodeName(6, "G");
+    g->addNodeName(7, "H");
+    g->addNodeName(8, "I");
+    g->addEdge("A", "B", 4);
+    g->addEdge("A", "H", 8);
+    g->addEdge("B", "C", 8);
+    g->addEdge("B", "H", 11);
+    g->addEdge("C", "D", 7);
+    g->addEdge("C", "I", 2);
+    g->addEdge("C", "F", 4);
+    g->addEdge("D", "E", 9);
+    g->addEdge("D", "F", 14);
+    g->addEdge("E", "F", 10);
+    g->addEdge("F", "G", 2);
+    g->addEdge("G", "H", 1);
+    g->addEdge("G", "I", 6);
+    g->addEdge("H", "I", 7);
 }
 
 void interactiveMenu(Graph*& g) {
@@ -217,7 +227,7 @@ void interactiveMenu(Graph*& g) {
         cin >> choice;
 
         int u, v, w, src;
-        string filename;
+        string uName, vName, srcName, filename;
         switch (choice) {
             case 1:
                 delete g;
@@ -233,12 +243,12 @@ void interactiveMenu(Graph*& g) {
             case 2:
                 cout << "Enter edge (u v w): ";
                 cin >> u >> v >> w;
-                g->addEdge(u, v, w);
+                g->addEdge(uName, vName, w);
                 break;
             case 3:
                 cout << "Enter edge to remove (u v): ";
                 cin >> u >> v;
-                g->removeEdge(u, v);
+                g->removeEdge(uName, vName);
                 break;
             case 4:
                 g->displayGraph();
@@ -246,7 +256,7 @@ void interactiveMenu(Graph*& g) {
             case 5:
                 cout << "Enter source vertex: ";
                 cin >> src;
-                g->shortestPath(src);
+                g->shortestPath(srcName);
                 break;
             case 6:
                 cout << "Enter filename to save graph: ";
@@ -268,6 +278,8 @@ void interactiveMenu(Graph*& g) {
             default:
                 cout << "Invalid choice. Please try again.\n";
         }
+        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+cin.clear();
     } while (choice != 8);
 }
 
