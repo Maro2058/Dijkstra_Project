@@ -16,13 +16,20 @@ The Program should be able to:
 
 ## To Do List:
 ### Essentials
+- Implement our own Doubly Linked List, as well as Priority Queue (Zeyad & Morad)
 - Be able to Edit Graphs (Zeyad Sameh or Youssef Haytham)
+  - Remove Vertex
+  - Add Vertex
+  - Add Edge (already done)
+  - Remove Edge (already done)
+  - Change Weight
+  - Change Vertex Name
 - Save Graphs to File (Amr Edris)
 - Load Graphs from File (Amr Edris)
 - Refactor Code (Everyone)
 - Polish (Everyone)
 - Fix Bugs (Everyone)
-- Implement our own Doubly Linked List, as well as Priority Queue (Zeyad & Morad)
+- Split the code into Implementation, header, and main files.
 
 ### Other Features to Add
 - Make it so Interactive Menu has submenus that give user more info. 
@@ -35,4 +42,4 @@ The Program should be able to:
 - Fix infinite loop when inputting string instead of int in all functions 
 - Make it so input for vertex names and other similar things uses getline()
   instead of cin, so that it takes a whole sentence and not just one word as input 
-- Error handling for all functions
+- Error handling for all functions (misInputs)
