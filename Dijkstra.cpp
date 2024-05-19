@@ -2,7 +2,10 @@
 // priority_queue in STL
 
 #include <bits/stdc++.h>
+#include<fstream>
+#include <filesystem>
 using namespace std;
+namespace fs = std::filesystem;
 #define INF 0x3f3f3f3f
 
 // iPair ==> Integer Pair
@@ -147,10 +150,48 @@ void Graph::shortestPath(const string& s) {
 }
 
 // Save graph to a file
-void Graph::saveGraph(const string& filename) {
-    ofstream outFile(filename);
+void Graph::saveGraph(const string& f) {
+    string Filename = f +".txt";
+
+    string foldername = "C:\\Users\\Amr\\OneDrive\\Desktop\\data Structure\\project\\Dijkstra_Project";
+    if (!fs::exists(foldername)) {
+        std::cerr << "Folder does not exist: " << foldername << std::endl;
+        return;
+    }
+
+    vector<string> txt_files;
+
+    // Iterate over each file in the folder
+    //fs::directory_iterator(foldername) this creates an iterator to loop through the contents of the directory specified by foldername.
+    for (const auto& entry : fs::directory_iterator(foldername) ) { // This loop iterates over each entry found in the directory.
+        // Check if the entry is a regular file and has a .txt extension
+        if (fs::is_regular_file(entry.path()) && entry.path().extension() == ".txt") {
+            string filename1 = entry.path().filename().string();
+            if(filename1 == Filename)
+            {
+                cout<<"name already exists, are you sure you want to overwrite?"<<endl<<"1.Yes\n2.No"<<endl;
+                int choice;
+                cin>>choice;
+                while(choice > 2 || choice < 1)
+                {
+                    cout<<"Out of range please pick between 1 and 2"<<endl;
+                    cin.clear();
+                    cin>>choice;
+                }
+                switch(choice)
+                {
+                    case 1:
+                        break;
+                    case 2:
+                        cout<<"Save Operation cancelled"<<endl;
+                        return;
+                }
+            }
+        }
+    }
+    ofstream outFile(Filename);
     if (!outFile) {
-        cerr << "Error opening file for writing: " << filename << endl;
+        cerr << "Error opening file for writing: " << Filename << endl;
         return;
     }
 
@@ -170,7 +211,7 @@ void Graph::saveGraph(const string& filename) {
     if (outFile.fail()) {
         cerr << "Error occurred while saving the graph to file." << endl;
     } else {
-        cout << "Graph saved successfully to " << filename << endl;
+        cout << "Graph saved successfully to " << Filename << endl;
     }
 }
 
@@ -179,7 +220,46 @@ void loadGraph(const string& filename, Graph*& g) {
         delete g;// delete the graph if there is anything in there already
         g = nullptr;
     }
-    ifstream inFile(filename);
+    string foldername = "C:\\Users\\Amr\\OneDrive\\Desktop\\data Structure\\project\\Dijkstra_Project";
+    if (!fs::exists(foldername)) {
+        std::cerr << "Folder does not exist: " << foldername << std::endl;
+        return;
+    }
+
+    vector<string> txt_files;
+
+    // Iterate over each file in the folder
+    for (const auto& entry : fs::directory_iterator(foldername)) {
+        // Check if the entry is a regular file and has a .txt extension
+        if (fs::is_regular_file(entry.path()) && entry.path().extension() == ".txt") {
+            string filename1 = entry.path().filename().string();
+            txt_files.push_back(filename1); // Store the filename in a vector
+            cout << "Found file: " << filename1 << std::endl;
+        }
+    }
+
+    if (txt_files.empty()) {
+        std::cerr << "No .txt files found in folder: " << foldername << std::endl;
+        return;
+    }
+
+    // Print available files for selection
+    cout << "Available .txt files in folder: " <<endl;
+    for (size_t i = 0; i < txt_files.size(); ++i) {
+        cout << i + 1 << ". " << txt_files[i] << endl;
+    }
+
+    // User selects a file
+    int choice;
+    cout << "Enter the number corresponding to the file you want to load: ";
+    cin >> choice;
+
+    if (choice < 1 || choice > static_cast<int>(txt_files.size())) {
+        cerr << "Invalid choice. Please enter a valid number." << std::endl;
+        return;
+    }
+
+    ifstream inFile(txt_files[choice - 1]);
     if (!inFile) {
         cerr << "Error opening file for reading: " << filename << endl;
         return;
