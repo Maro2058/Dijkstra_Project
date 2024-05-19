@@ -28,7 +28,7 @@ The Program should be able to:
 - Make it so Interactive Menu has submenus that give user more info. 
 - Make it so that when the program lists the name of vertices when asking for source
   in the shortest path function
-- 
+- Add option to edit node name
 
 
 ## Bugs To Fix:

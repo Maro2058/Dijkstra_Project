@@ -67,7 +67,7 @@ void Graph::removeEdge(const string& u, const string& v) {
 
 void Graph::printPath(vector<int>& prevVertex, int i) {
     if (prevVertex[i] == -1) {
-        cout << i ;
+        cout << indexToName[i] ;
         return;
     }
     printPath(prevVertex, prevVertex[i]);
@@ -184,7 +184,7 @@ void Graph::editGraph() {
 }
 
 void tempGraph(Graph*& g) {
-    g = createNewGraph(9, 0);
+    g = new Graph(9);
     g->addNodeName(0, "A");
     g->addNodeName(1, "B");
     g->addNodeName(2, "C");
@@ -255,7 +255,7 @@ void interactiveMenu(Graph*& g) {
                 break;
             case 5:
                 cout << "Enter source vertex: ";
-                cin >> src;
+                cin >> srcName;
                 g->shortestPath(srcName);
                 break;
             case 6:
