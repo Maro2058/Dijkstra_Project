@@ -153,7 +153,8 @@ void Graph::shortestPath(const string& s) {
 void Graph::saveGraph(const string& f) {
     string Filename = f +".txt";
 
-    string foldername = "C:\\Users\\Amr\\OneDrive\\Desktop\\data Structure\\project\\Dijkstra_Project";
+    fs::path folderPath = fs::current_path();
+    string foldername = folderPath.string();
     if (!fs::exists(foldername)) {
         std::cerr << "Folder does not exist: " << foldername << std::endl;
         return;
@@ -215,12 +216,13 @@ void Graph::saveGraph(const string& f) {
     }
 }
 
-void loadGraph(const string& filename, Graph*& g) {
+void loadGraph(Graph*& g) {
     if (g) {
         delete g;// delete the graph if there is anything in there already
         g = nullptr;
     }
-    string foldername = "C:\\Users\\Amr\\OneDrive\\Desktop\\data Structure\\project\\Dijkstra_Project";
+    fs::path folderPath = fs::current_path();
+    string foldername = folderPath.string();
     if (!fs::exists(foldername)) {
         std::cerr << "Folder does not exist: " << foldername << std::endl;
         return;
@@ -261,7 +263,7 @@ void loadGraph(const string& filename, Graph*& g) {
 
     ifstream inFile(txt_files[choice - 1]);
     if (!inFile) {
-        cerr << "Error opening file for reading: " << filename << endl;
+        cerr << "Error opening file for reading " << endl;
         return;
     }
     // Read number of vertices
@@ -422,9 +424,7 @@ void interactiveMenu(Graph*& g) {
                 g->saveGraph(filename);
                 break;
             case 7:
-                cout << "Enter filename to load graph: ";
-                cin >> filename;
-                loadGraph(filename, g);
+                loadGraph(g);
                 break;
             case 8:
                 cout << "Exiting...\n";
