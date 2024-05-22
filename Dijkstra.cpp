@@ -4,12 +4,21 @@
 #include <bits/stdc++.h>
 #include<fstream>
 #include <filesystem>
+#include "DLL.h"
 using namespace std;
 namespace fs = std::filesystem;
 #define INF 0x3f3f3f3f
 
+
 // iPair ==> Integer Pair
 typedef pair<int, int> iPair;
+
+
+
+template<typename T>
+class PriorityQueue{
+
+};
 
 // This class represents a directed graph using
 // adjacency list representation
@@ -17,13 +26,11 @@ class Graph {
     int V; // No. of vertices
     // In a weighted graph, we need to store vertex
     // and weight pair for every edge
-
-
     map<string, int> nameToIndex;
     map<int, string> indexToName;
 
 public:
-    list<pair<int, int>>* adj;
+    DLL<pair<int, int>>* adj;
     Graph(int V); // Constructor
     Graph();
     // function to add an edge to graph
@@ -48,7 +55,7 @@ public:
 Graph::Graph(int V)
 {
     this->V = V;
-    adj = new list<iPair>[V];
+    adj = new DLL<iPair>[V];
 }
 
 void Graph::addNodeName(int index, const string& name) {
@@ -60,9 +67,11 @@ void Graph::addNodeName(int index, const string& name) {
 void Graph::addEdge(const string& u, const string& v, int w) {
     int uIndex = nameToIndex[u];
     int vIndex = nameToIndex[v];
+    cout << "Adding edge from " << u << " to " << v << " with weight " << w << endl;
     adj[uIndex].push_back(make_pair(vIndex, w));
     adj[vIndex].push_back(make_pair(uIndex, w));
 }
+
 
 void Graph::addEdge(int u, int v, int w) {
     adj[u].push_back(make_pair(v, w));
@@ -72,8 +81,8 @@ void Graph::addEdge(int u, int v, int w) {
 void Graph::removeEdge(const string& u, const string& v) {
     int uIndex = nameToIndex[u];
     int vIndex = nameToIndex[v];
-    adj[uIndex].remove_if([vIndex](const iPair& pair) { return pair.first == vIndex; });
-    adj[vIndex].remove_if([uIndex](const iPair& pair) { return pair.first == uIndex; });
+    //adj[uIndex].remove_if([vIndex](const iPair& pair) { return pair.first == vIndex; });
+    //adj[vIndex].remove_if([uIndex](const iPair& pair) { return pair.first == uIndex; });
 }
 
 void Graph::printPath(vector<int>& prevVertex, int i) {
@@ -122,12 +131,12 @@ void Graph::shortestPath(const string& s) {
 
         // 'i' is used to get all adjacent vertices of a
         // vertex
-        list<pair<int, int> >::iterator i;
-        for (i = adj[u].begin(); i != adj[u].end(); ++i) {
+
+        for (DLLNode<pair<int,int>>* i = adj[u].begin(); i != adj[u].end(); i = i->next) {
             // Get vertex label and weight of current
             // adjacent of u.
-            int targetNode = (*i).first;
-            int weight = (*i).second;
+            int targetNode = i->info.first;
+            int weight = i->info.second;
 
             // If there is shorted path to v through u.
             if (dist[targetNode] > dist[u] + weight) {
@@ -170,7 +179,7 @@ void Graph::saveGraph(const string& f) {
             string filename1 = entry.path().filename().string();
             if(filename1 == Filename)
             {
-                cout<<"name already exists, are you sure you want to overwrite?"<<endl<<"1.Yes\n2.No"<<endl;
+                cout<<"name already exists, Do you want to overwrite?"<<endl<<"1.Yes\n2.No"<<endl;
                 int choice;
                 cin>>choice;
                 while(choice > 2 || choice < 1)
@@ -202,8 +211,8 @@ void Graph::saveGraph(const string& f) {
     // Write vertex names
     for (int u = 0; u < V; ++u) {
         outFile << u << "|" << indexToName[u];
-        for (const auto& v : adj[u]) { //get all the pairs
-            outFile << "|" << v.first << "," << v.second;
+        for (DLLNode<pair<int,int>>* i = adj[u].begin(); i != adj[u].end(); i = i->next) { //get all the pairs
+            outFile << "|" << i->info.first << "," << i->info.second;
         }
         outFile << endl;
     }
@@ -332,8 +341,8 @@ Graph* createNewGraph(int V, int E) {
 void Graph::displayGraph() {
     for (int u = 0; u < V; ++u) {
         cout << "Vertex " << indexToName[u] << " makes an edge with\n";
-        for (auto v : adj[u]) {
-            cout << "\tVertex " << indexToName[v.first] << " with weight=" << v.second << endl;
+        for (DLLNode<pair<int,int>>* i = adj[u].begin(); i != adj[u].end(); i = i->next) {
+            cout << "\tVertex " << indexToName[i->info.first] << " with weight=" << i->info.second << endl;
         }
         cout << endl;
     }
@@ -368,6 +377,8 @@ void tempGraph(Graph*& g) {
     g->addEdge("G", "H", 1);
     g->addEdge("G", "I", 6);
     g->addEdge("H", "I", 7);
+
+    g->displayGraph();
 }
 
 void interactiveMenu(Graph*& g) {
@@ -402,12 +413,12 @@ void interactiveMenu(Graph*& g) {
                 break;
             case 2:
                 cout << "Enter edge (u v w): ";
-                cin >> u >> v >> w;
+                cin >> uName >> vName >> w;
                 g->addEdge(uName, vName, w);
                 break;
             case 3:
                 cout << "Enter edge to remove (u v): ";
-                cin >> u >> v;
+                cin >> uName >> vName;
                 g->removeEdge(uName, vName);
                 break;
             case 4:
@@ -436,17 +447,17 @@ void interactiveMenu(Graph*& g) {
             default:
                 cout << "Invalid choice. Please try again.\n";
         }
-        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-cin.clear();
     } while (choice != 8);
 }
 
 // Driver program to test methods of graph class
 int main()
 {
+
     // create the graph given in above figure
     Graph* g = nullptr;
     interactiveMenu(g);
+
 
     delete g;
     return 0;
