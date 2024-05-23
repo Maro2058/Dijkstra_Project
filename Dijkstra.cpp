@@ -36,6 +36,9 @@ public:
     // function to add an edge to graph
     void addEdge(const string& u, const string& v, int w);
     void addEdge(int u, int v, int w);
+    // function to add and remove vertex
+    void addVertex(const string& vertex);
+    void removeVertex(const string& vertex);
     // function to remove an edge from the graph
     void removeEdge(const string& u, const string& v);
     void printPath(vector<int>& prevVertex, int i);
@@ -62,6 +65,63 @@ void Graph::addNodeName(int index, const string& name) {
     nameToIndex[name] = index;
     // cant add same name or same index!!
     indexToName[index] = name;
+}
+void Graph::addVertex(const string& vertex) {
+    if (nameToIndex.find(vertex) != nameToIndex.end()) {
+        cout << "Vertex " << vertex << " already exists." << endl;
+        return;
+    }
+    
+    int newIndex = V;
+    V++;
+
+    // Expand the adjacency list
+    DLL<pair<int, int>>* newAdj = new DLL<iPair>[V];
+    for (int i = 0; i < V - 1; ++i) {
+        newAdj[i] = adj[i];
+    }
+    delete[] adj;
+    adj = newAdj;
+
+    // Add the new vertex to the maps
+    nameToIndex[vertex] = newIndex;
+    indexToName[newIndex] = vertex;
+
+    cout << "Vertex " << vertex << " added." << endl;
+}
+
+void Graph::removeVertex(const string& vertex) {
+    if (nameToIndex.find(vertex) == nameToIndex.end()) {
+        cout << "Vertex " << vertex << " does not exist." << endl;
+        return;
+    }
+    
+    int index = nameToIndex[vertex];
+
+    // Remove all edges associated with this vertex
+    for (int u = 0; u < V; ++u) {
+        adj[u].remove_if([index](const iPair& pair) { return pair.first == index; });
+    }
+
+    // Remove the vertex from the adjacency list and maps
+    for (int u = index; u < V - 1; ++u) {
+        adj[u] = adj[u + 1];
+        indexToName[u] = indexToName[u + 1];
+        nameToIndex[indexToName[u]] = u;
+    }
+    V--;
+
+    DLL<iPair>* newAdj = new DLL<iPair>[V];
+    for (int i = 0; i < V; ++i) {
+        newAdj[i] = adj[i];
+    }
+    delete[] adj;
+    adj = newAdj;
+
+    nameToIndex.erase(vertex);
+    indexToName.erase(V);
+
+    cout << "Vertex " << vertex << " removed." << endl;
 }
 
 void Graph::addEdge(const string& u, const string& v, int w) {
