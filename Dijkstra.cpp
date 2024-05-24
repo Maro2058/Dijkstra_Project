@@ -66,6 +66,7 @@ void Graph::addNodeName(int index, const string& name) {
     // cant add same name or same index!!
     indexToName[index] = name;
 }
+
 void Graph::addVertex(const string& vertex) {
     if (nameToIndex.find(vertex) != nameToIndex.end()) {
         cout << "Vertex " << vertex << " already exists." << endl;
@@ -131,22 +132,42 @@ void Graph::removeVertex(const string& vertex) {
     cout << "Vertex " << vertex << " removed." << endl;
 }
 
-
 void Graph::addEdge(const string& u, const string& v, int w) {
+    if (nameToIndex.find(u) == nameToIndex.end() && nameToIndex.find(v) == nameToIndex.end()) {
+        cout << "Error: Vertex " << u <<" and Vertex "<< v <<" do not exist." << endl;
+        return;
+    }
+    if (nameToIndex.find(u) == nameToIndex.end()) {
+        cout << "Error: Vertex " << u << " does not exist." << endl;
+        return;
+    }
+    if (nameToIndex.find(v) == nameToIndex.end()) {
+        cout << "Error: Vertex " << v << " does not exist." << endl;
+        return;
+    }
+
     int uIndex = nameToIndex[u];
     int vIndex = nameToIndex[v];
-    cout << "Adding edge from " << u << " to " << v << " with weight " << w << endl;
+    cout << "\nAdding edge from " << u << " to " << v << " with weight " << w << endl;
     adj[uIndex].push_back(make_pair(vIndex, w));
     adj[vIndex].push_back(make_pair(uIndex, w));
-}
-
-
-void Graph::addEdge(int u, int v, int w) {
-    adj[u].push_back(make_pair(v, w));
-    adj[v].push_back(make_pair(u, w));
+    cout << "Edge added from " << u << " to " << v << " with weight " << w << ".\n";
 }
 
 void Graph::removeEdge(const string& u, const string& v) {
+    if (nameToIndex.find(u) == nameToIndex.end() && nameToIndex.find(v) == nameToIndex.end()) {
+        cout << "Error: Vertex " << u <<" and Vertex "<< v <<" do not exist." << endl;
+        return;
+    }
+    if (nameToIndex.find(u) == nameToIndex.end()) {
+        cout << "Error: Vertex " << u << " does not exist." << endl;
+        return;
+    }
+    if (nameToIndex.find(v) == nameToIndex.end()) {
+        cout << "Error: Vertex " << v << " does not exist." << endl;
+        return;
+    }
+
     int uIndex = nameToIndex[u];
     int vIndex = nameToIndex[v];
 
@@ -169,8 +190,8 @@ void Graph::removeEdge(const string& u, const string& v) {
         }
         current = nextNode;
     }
+    cout << "Edge removed between " << u<< " and " << v << ".\n";
 }
-
 
 void Graph::printPath(vector<int>& prevVertex, int i) {
     if (prevVertex[i] == -1) {
@@ -184,6 +205,10 @@ void Graph::printPath(vector<int>& prevVertex, int i) {
 
 // Prints shortest paths from src to all other vertices
 void Graph::shortestPath(const string& s) {
+    if (nameToIndex.find(s) == nameToIndex.end()) {
+        cout << "Error: Vertex " << s << " does not exist." << endl;
+        return;
+    }
     int src = nameToIndex[s];
 
     // Create a priority queue to store vertices that
@@ -404,19 +429,63 @@ void loadGraph(Graph*& g) {
 
 Graph* createNewGraph(int V, int E) {
     Graph* newGraph = new Graph(V);
+    vector<string> vertexNames(V);
 
+    // Input vertex names
     for (int i = 0; i < V; ++i) {
         string name;
         cout << "Enter name for vertex " << i << ": ";
         cin >> name;
+        vertexNames[i] = name;
         newGraph->addNodeName(i, name);
     }
 
+    // Input edges
     for (int i = 0; i < E; ++i) {
         string u, v;
         int w;
-        cout << "Enter edge (u v w): ";
-        cin >> u >> v >> w;
+        bool validInput = false;
+
+        // Validate starting vertex
+        while (!validInput) {
+            cout << "Enter your edge's Starting Point: ";
+            cin >> u;
+
+            if (find(vertexNames.begin(), vertexNames.end(), u) == vertexNames.end()) {
+                cout << "Error: Vertex " << u << " does not exist. Please try again." << endl;
+            } else {
+                validInput = true;
+            }
+        }
+
+        validInput = false;
+
+        // Validate destination vertex
+        while (!validInput) {
+            cout << "Enter your edge's Destination Point: ";
+            cin >> v;
+
+            if (find(vertexNames.begin(), vertexNames.end(), v) == vertexNames.end()) {
+                cout << "Error: Vertex " << v << " does not exist. Please try again." << endl;
+            } else {
+                validInput = true;
+            }
+        }
+
+        // Validate edge weight
+        while (true) {
+            cout << "Enter your edge's weight (distance): ";
+            cin >> w;
+
+            if (cin.fail()) {
+                cin.clear(); // Clear the error flag
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
+                cout << "Error: Weight must be an integer. Please try again." << endl;
+            } else {
+                break; // Input is valid, break out of the loop
+            }
+        }
+
         newGraph->addEdge(u, v, w);
     }
 
@@ -512,21 +581,39 @@ void interactiveMenu(Graph*& g) {
                 break;
 
             case 4:
-                cout << "Enter edge (source destination weight): ";
-                cin >> uName >> vName >> w;
+                cout << "Enter your edge's Starting Point: ";
+                cin >> uName;
+                cout << "Enter your edge's Destination Point: ";
+                cin >> vName;
+
+                while (true) {
+                    cout << "Enter your edge's weight (distance): ";
+                    cin >> w;
+
+                    if (cin.fail()) {
+                        cin.clear(); // Clear the error flag
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
+                        cout << "Error: Weight must be an integer. Please try again." << endl;
+                    } else {
+                        break; // Input is valid, break out of the loop
+                    }
+                }
+
                 g->addEdge(uName, vName, w);
-                cout << "Edge added from " << uName << " to " << vName << " with weight " << w << ".\n";
+
                 break;
 
             case 5:
-                cout << "Enter edge to remove (source destination): ";
-                cin >> uName >> vName;
+                cout << "Please specify the two locations of which you want to remove Edge(s): "<< endl;
+                cout << "location: ";
+                cin >> uName ;
+                cout << "and location: ";
+                cin >>  vName;
                 g->removeEdge(uName, vName);
-                cout << "Edge removed between " << uName << " and " << vName << ".\n";
                 break;
 
             case 6:
-                cout << "Displaying the graph:\n";
+                cout << "\nDisplaying the graph:\n";
                 g->displayGraph();
                 break;
 
