@@ -100,7 +100,14 @@ void Graph::removeVertex(const string& vertex) {
 
     // Remove all edges associated with this vertex
     for (int u = 0; u < V; ++u) {
-        adj[u].remove_if([index](const iPair& pair) { return pair.first == index; });
+        DLLNode<pair<int, int>>* current = adj[u].begin();
+        while (current != nullptr) {
+            DLLNode<pair<int, int>>* nextNode = current->next;
+            if (current->info.first == index) {
+                adj[u].deleteNode(current->info);
+            }
+            current = nextNode;
+        }
     }
 
     // Remove the vertex from the adjacency list and maps
@@ -124,6 +131,7 @@ void Graph::removeVertex(const string& vertex) {
     cout << "Vertex " << vertex << " removed." << endl;
 }
 
+
 void Graph::addEdge(const string& u, const string& v, int w) {
     int uIndex = nameToIndex[u];
     int vIndex = nameToIndex[v];
@@ -141,9 +149,28 @@ void Graph::addEdge(int u, int v, int w) {
 void Graph::removeEdge(const string& u, const string& v) {
     int uIndex = nameToIndex[u];
     int vIndex = nameToIndex[v];
-    adj[uIndex].remove_if([vIndex](const iPair& pair) { return pair.first == vIndex; });
-    adj[vIndex].remove_if([uIndex](const iPair& pair) { return pair.first == uIndex; });
+
+    // Remove all edges from u to v
+    DLLNode<iPair>* current = adj[uIndex].begin();
+    while (current != nullptr) {
+        DLLNode<iPair>* nextNode = current->next;
+        if (current->info.first == vIndex) {
+            adj[uIndex].deleteNode(current->info);
+        }
+        current = nextNode;
+    }
+
+    // Remove all edges from v to u
+    current = adj[vIndex].begin();
+    while (current != nullptr) {
+        DLLNode<iPair>* nextNode = current->next;
+        if (current->info.first == uIndex) {
+            adj[vIndex].deleteNode(current->info);
+        }
+        current = nextNode;
+    }
 }
+
 
 void Graph::printPath(vector<int>& prevVertex, int i) {
     if (prevVertex[i] == -1) {
@@ -375,8 +402,6 @@ void loadGraph(Graph*& g) {
     inFile.close();
 }
 
-
-
 Graph* createNewGraph(int V, int E) {
     Graph* newGraph = new Graph(V);
 
@@ -444,71 +469,101 @@ void tempGraph(Graph*& g) {
 void interactiveMenu(Graph*& g) {
     int choice;
     do {
-        cout << "Menu:\n";
+        cout << "\nMenu:\n";
         cout << "1. Create New Graph\n";
-        cout << "2. Add Edge\n";
-        cout << "3. Remove Edge\n";
-        cout << "4. Display Graph\n";
-        cout << "5. Find Shortest Path\n";
-        cout << "6. Save Graph\n";
-        cout << "7. Load Graph\n";
-        cout << "8. Exit\n";
-        cout << "9. TempGraph\n";
+        cout << "2. Add Vertex\n";
+        cout << "3. Remove Vertex\n";
+        cout << "4. Add Edge\n";
+        cout << "5. Remove Edge\n";
+        cout << "6. Display Graph\n";
+        cout << "7. Find Shortest Path\n";
+        cout << "8. Save Graph\n";
+        cout << "9. Load Graph\n";
+        cout << "10. Exit\n";
+        cout << "11. TempGraph\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
-        int u, v, w, src;
-        string uName, vName, srcName, filename;
+        string vertexName, uName, vName, srcName, filename;
+        int w;
         switch (choice) {
             case 1:
                 delete g;
-                int V;
+                int V, E;
                 cout << "Enter the number of vertices: ";
                 cin >> V;
-                int E;
                 cout << "Enter the number of edges: ";
                 cin >> E;
 
-                g = createNewGraph(V,E);
+                g = createNewGraph(V, E);
+                cout << "New graph created with " << V << " vertices and " << E << " edges.\n";
                 break;
+
             case 2:
-                cout << "Enter edge (u v w): ";
+                cout << "Enter vertex name to add: ";
+                cin >> vertexName;
+                g->addVertex(vertexName);
+                break;
+
+            case 3:
+                cout << "Enter vertex name to remove: ";
+                cin >> vertexName;
+                g->removeVertex(vertexName);
+                break;
+
+            case 4:
+                cout << "Enter edge (source destination weight): ";
                 cin >> uName >> vName >> w;
                 g->addEdge(uName, vName, w);
+                cout << "Edge added from " << uName << " to " << vName << " with weight " << w << ".\n";
                 break;
-            case 3:
-                cout << "Enter edge to remove (u v): ";
+
+            case 5:
+                cout << "Enter edge to remove (source destination): ";
                 cin >> uName >> vName;
                 g->removeEdge(uName, vName);
+                cout << "Edge removed between " << uName << " and " << vName << ".\n";
                 break;
-            case 4:
+
+            case 6:
+                cout << "Displaying the graph:\n";
                 g->displayGraph();
                 break;
-            case 5:
-                cout << "Enter source vertex: ";
+
+            case 7:
+                cout << "Enter source vertex for shortest path: ";
                 cin >> srcName;
                 g->shortestPath(srcName);
                 break;
-            case 6:
+
+            case 8:
                 cout << "Enter filename to save graph: ";
                 cin >> filename;
                 g->saveGraph(filename);
+                cout << "Graph saved to " << filename << ".\n";
                 break;
-            case 7:
+
+            case 9:
                 loadGraph(g);
+                cout << "Graph loaded from file.\n";
                 break;
-            case 8:
+
+            case 10:
                 cout << "Exiting...\n";
                 break;
-            case 9:
-                cout << "Graph Loaded\n";
+
+            case 11:
+                cout << "Loading temporary graph...\n";
                 tempGraph(g);
+                cout << "Temporary graph loaded.\n";
                 break;
+
             default:
                 cout << "Invalid choice. Please try again.\n";
         }
-    } while (choice != 8);
+    } while (choice != 10);
 }
+
 
 // Driver program to test methods of graph class
 int main()
