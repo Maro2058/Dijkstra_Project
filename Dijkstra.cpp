@@ -71,7 +71,7 @@ void Graph::addVertex(const string& vertex) {
         cout << "Vertex " << vertex << " already exists." << endl;
         return;
     }
-    
+
     int newIndex = V;
     V++;
 
@@ -95,7 +95,7 @@ void Graph::removeVertex(const string& vertex) {
         cout << "Vertex " << vertex << " does not exist." << endl;
         return;
     }
-    
+
     int index = nameToIndex[vertex];
 
     // Remove all edges associated with this vertex
@@ -141,8 +141,8 @@ void Graph::addEdge(int u, int v, int w) {
 void Graph::removeEdge(const string& u, const string& v) {
     int uIndex = nameToIndex[u];
     int vIndex = nameToIndex[v];
-    //adj[uIndex].remove_if([vIndex](const iPair& pair) { return pair.first == vIndex; });
-    //adj[vIndex].remove_if([uIndex](const iPair& pair) { return pair.first == uIndex; });
+    adj[uIndex].remove_if([vIndex](const iPair& pair) { return pair.first == vIndex; });
+    adj[vIndex].remove_if([uIndex](const iPair& pair) { return pair.first == uIndex; });
 }
 
 void Graph::printPath(vector<int>& prevVertex, int i) {

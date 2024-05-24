@@ -32,6 +32,8 @@ public:
     void printAll() const;
     void insertBeforeAndAfter(DLLNode<T>* p, T data);
 
+    template <typename Predicate>
+    void remove_if(Predicate pred);
 private:
     DLLNode<T>* head;
     DLLNode<T>* tail;

@@ -133,3 +133,35 @@ void DLL<T>::insertBeforeAndAfter(DLLNode<T>* p, T data) {
         p->next = newNode;
     }
 }
+template <typename T>
+template <typename Predicate>
+void DLL<T>::remove_if(Predicate pred) {
+    DLLNode<T>* current = head;
+    while (current) {
+        if (pred(current->info)) {
+            DLLNode<T>* toDelete = current;
+            if (current == head) {
+                head = head->next;
+                if (head) {
+                    head->prev = nullptr;
+                } else {
+                    tail = nullptr;
+                }
+            } else if (current == tail) {
+                tail = tail->prev;
+                if (tail) {
+                    tail->next = nullptr;
+                } else {
+                    head = nullptr;
+                }
+            } else {
+                current->prev->next = current->next;
+                current->next->prev = current->prev;
+            }
+            current = current->next;
+            delete toDelete;
+        } else {
+            current = current->next;
+        }
+    }
+}
