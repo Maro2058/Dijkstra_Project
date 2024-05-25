@@ -1,6 +1,6 @@
 // Program to find Dijkstra's shortest path using
 // priority_queue in STL
-
+#include <cstdlib>
 #include <bits/stdc++.h>
 #include<fstream>
 #include <filesystem>
@@ -151,7 +151,7 @@ void Graph::addEdge(const string& u, const string& v, int w) {
     cout << "\nAdding edge from " << u << " to " << v << " with weight " << w << endl;
     adj[uIndex].push_back(make_pair(vIndex, w));
     adj[vIndex].push_back(make_pair(uIndex, w));
-    cout << "Edge added from " << u << " to " << v << " with weight " << w << ".\n";
+    cout << "Edge added from " << u << " to " << v << " with weight " << w << endl;
 }
 
 void Graph::removeEdge(const string& u, const string& v) {
@@ -190,7 +190,7 @@ void Graph::removeEdge(const string& u, const string& v) {
         }
         current = nextNode;
     }
-    cout << "Edge removed between " << u<< " and " << v << ".\n";
+    cout << "Edge(s) removed between " << u<< " and " << v << ".\n";
 }
 
 void Graph::printPath(vector<int>& prevVertex, int i) {
@@ -432,12 +432,15 @@ Graph* createNewGraph(int V, int E) {
     vector<string> vertexNames(V);
 
     // Input vertex names
+    cin.ignore();
     for (int i = 0; i < V; ++i) {
         string name;
+        cout << endl;
         cout << "Enter name for vertex " << i << ": ";
-        cin >> name;
+        getline(cin, name);
         vertexNames[i] = name;
         newGraph->addNodeName(i, name);
+
     }
 
     // Input edges
@@ -448,8 +451,8 @@ Graph* createNewGraph(int V, int E) {
 
         // Validate starting vertex
         while (!validInput) {
-            cout << "Enter your edge's Starting Point: ";
-            cin >> u;
+            cout << "\nEnter your edge's Starting Point: ";
+            getline(cin, u);
 
             if (find(vertexNames.begin(), vertexNames.end(), u) == vertexNames.end()) {
                 cout << "Error: Vertex " << u << " does not exist. Please try again." << endl;
@@ -463,7 +466,7 @@ Graph* createNewGraph(int V, int E) {
         // Validate destination vertex
         while (!validInput) {
             cout << "Enter your edge's Destination Point: ";
-            cin >> v;
+            getline(cin, v);
 
             if (find(vertexNames.begin(), vertexNames.end(), v) == vertexNames.end()) {
                 cout << "Error: Vertex " << v << " does not exist. Please try again." << endl;
@@ -473,6 +476,7 @@ Graph* createNewGraph(int V, int E) {
         }
 
         // Validate edge weight
+
         while (true) {
             cout << "Enter your edge's weight (distance): ";
             cin >> w;
@@ -482,10 +486,10 @@ Graph* createNewGraph(int V, int E) {
                 cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
                 cout << "Error: Weight must be an integer. Please try again." << endl;
             } else {
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
                 break; // Input is valid, break out of the loop
             }
         }
-
         newGraph->addEdge(u, v, w);
     }
 
@@ -503,7 +507,70 @@ void Graph::displayGraph() {
 }
 
 void Graph::editGraph() {
+    int choice;
+    do {
+        cout << "\nEdit Graph Menu:\n";
+        cout << "1. Add Vertex\n";
+        cout << "2. Remove Vertex\n";
+        cout << "3. Add Edge\n";
+        cout << "4. Remove Edge\n";
+        cout << "5. Back to Main Menu\n";
+        cout << "Enter your choice: ";
 
+        cin >> choice;
+        cin.ignore();
+
+        string vertexName, uName, vName;
+        int w;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter vertex name to add: ";
+                getline(cin, vertexName);
+                addVertex(vertexName);
+                break;
+
+            case 2:
+                cout << "Enter vertex name to remove: ";
+                getline(cin, vertexName);
+                removeVertex(vertexName);
+                break;
+
+            case 3:
+                cout << "Enter your edge's Starting Point: ";
+                getline(cin, uName);
+                cout << "Enter your edge's Destination Point: ";
+                getline(cin, vName);
+                while (true) {
+                    cout << "Enter your edge's weight (distance): ";
+                    cin >> w;
+                    if (cin.fail()) {
+                        cin.clear(); // Clear the error flag
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
+                        cout << "Error: Weight must be an integer. Please try again." << endl;
+                    } else {
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the newline character from the input buffer
+                        break; // Input is valid, break out of the loop
+                    }
+                }
+                addEdge(uName, vName, w);
+                break;
+
+            case 4:
+                cout << "Enter Starting Point of the edge to remove: ";
+                getline(cin, uName);
+                cout << "Enter Destination Point of the edge to remove: ";
+                getline(cin, vName);
+                removeEdge(uName, vName);
+                break;
+
+            case 5:
+                return; // Back to Main Menu
+
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    } while (true);
 }
 
 void tempGraph(Graph*& g) {
@@ -540,106 +607,110 @@ void interactiveMenu(Graph*& g) {
     do {
         cout << "\nMenu:\n";
         cout << "1. Create New Graph\n";
-        cout << "2. Add Vertex\n";
-        cout << "3. Remove Vertex\n";
-        cout << "4. Add Edge\n";
-        cout << "5. Remove Edge\n";
-        cout << "6. Display Graph\n";
-        cout << "7. Find Shortest Path\n";
-        cout << "8. Save Graph\n";
-        cout << "9. Load Graph\n";
-        cout << "10. Exit\n";
-        cout << "11. TempGraph\n";
+        cout << "2. Edit Graph\n";
+        cout << "3. Display Graph\n";
+        cout << "4. Find Shortest Path\n";
+        cout << "5. Save Graph\n";
+        cout << "6. Load Graph\n";
+        cout << "7. Exit\n";
+        cout << "8. TempGraph\n";
         cout << "Enter your choice: ";
+
         cin >> choice;
+        cin.ignore();
 
         string vertexName, uName, vName, srcName, filename;
         int w;
+
         switch (choice) {
             case 1:
                 delete g;
                 int V, E;
-                cout << "Enter the number of vertices: ";
-                cin >> V;
-                cout << "Enter the number of edges: ";
-                cin >> E;
-
-                g = createNewGraph(V, E);
-                cout << "New graph created with " << V << " vertices and " << E << " edges.\n";
-                break;
-
-            case 2:
-                cout << "Enter vertex name to add: ";
-                cin >> vertexName;
-                g->addVertex(vertexName);
-                break;
-
-            case 3:
-                cout << "Enter vertex name to remove: ";
-                cin >> vertexName;
-                g->removeVertex(vertexName);
-                break;
-
-            case 4:
-                cout << "Enter your edge's Starting Point: ";
-                cin >> uName;
-                cout << "Enter your edge's Destination Point: ";
-                cin >> vName;
 
                 while (true) {
-                    cout << "Enter your edge's weight (distance): ";
-                    cin >> w;
+                    cout << "Enter the number of vertices: ";
+                    cin >> V;
 
                     if (cin.fail()) {
                         cin.clear(); // Clear the error flag
                         cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
-                        cout << "Error: Weight must be an integer. Please try again." << endl;
+                        cout << "Error: Must be an integer. Please try again." << endl;
                     } else {
                         break; // Input is valid, break out of the loop
                     }
                 }
 
-                g->addEdge(uName, vName, w);
+                while (true) {
+                    cout << "Enter the number of edges: ";
+                    cin >> E;
 
+                    if (cin.fail()) {
+                        cin.clear(); // Clear the error flag
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
+                        cout << "Error: Must be an integer. Please try again." << endl;
+                    } else {
+                        break; // Input is valid, break out of the loop
+                    }
+                }
+
+                g = createNewGraph(V, E);
+                cout << "\nNew graph created with " << V << " vertices and " << E << " edges.\n";
                 break;
 
-            case 5:
-                cout << "Please specify the two locations of which you want to remove Edge(s): "<< endl;
-                cout << "location: ";
-                cin >> uName ;
-                cout << "and location: ";
-                cin >>  vName;
-                g->removeEdge(uName, vName);
+            case 2:
+
+                if (g == nullptr) {
+                    cout << "Error: No graph exists. Please create/load a new graph first.\n";
+                    break;
+                }
+                cout << "Editing the graph...\n";
+                g->editGraph();
+                cout << "Graph edited.\n";
                 break;
 
-            case 6:
+            case 3:
+                if (g == nullptr) {
+                    cout << "Error: No graph exists. Please create/load a new graph first.\n";
+                    break;
+                }
+
                 cout << "\nDisplaying the graph:\n";
                 g->displayGraph();
                 break;
 
-            case 7:
+            case 4:
+                if (g == nullptr) {
+                    cout << "Error: No graph exists. Please create/load a new graph first.\n";
+                    break;
+                }
                 cout << "Enter source vertex for shortest path: ";
-                cin >> srcName;
+                getline(cin,srcName);
+
                 g->shortestPath(srcName);
                 break;
 
-            case 8:
+            case 5:
+                if (g == nullptr) {
+                    cout << "Error: No graph exists. Please create/load a new graph first.\n";
+                    break;
+                }
                 cout << "Enter filename to save graph: ";
-                cin >> filename;
+                getline(cin,filename);
+
                 g->saveGraph(filename);
                 cout << "Graph saved to " << filename << ".\n";
                 break;
 
-            case 9:
+            case 6:
                 loadGraph(g);
                 cout << "Graph loaded from file.\n";
                 break;
 
-            case 10:
+            case 7:
                 cout << "Exiting...\n";
                 break;
 
-            case 11:
+            case 8:
                 cout << "Loading temporary graph...\n";
                 tempGraph(g);
                 cout << "Temporary graph loaded.\n";
@@ -648,18 +719,15 @@ void interactiveMenu(Graph*& g) {
             default:
                 cout << "Invalid choice. Please try again.\n";
         }
-    } while (choice != 10);
+    } while (choice != 7);
 }
 
 
-// Driver program to test methods of graph class
 int main()
 {
 
-    // create the graph given in above figure
     Graph* g = nullptr;
     interactiveMenu(g);
-
 
     delete g;
     return 0;
