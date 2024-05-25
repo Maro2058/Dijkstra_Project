@@ -4,7 +4,8 @@
 #include <bits/stdc++.h>
 #include<fstream>
 #include <filesystem>
-#include "DLL.h"
+#include <SFML/Graphics.hpp>
+#include "DLL.cpp"
 using namespace std;
 namespace fs = std::filesystem;
 #define INF 0x3f3f3f3f
@@ -39,6 +40,7 @@ public:
     // function to add and remove vertex
     void addVertex(const string& vertex);
     void removeVertex(const string& vertex);
+    int getvertices()const;
     // function to remove an edge from the graph
     void removeEdge(const string& u, const string& v);
     void printPath(vector<int>& prevVertex, int i);
@@ -51,6 +53,7 @@ public:
     void displayGraph();
     void editGraph();
     void addNodeName(int index, const string& name);
+    void visualize();
 
 };
 
@@ -65,6 +68,11 @@ void Graph::addNodeName(int index, const string& name) {
     nameToIndex[name] = index;
     // cant add same name or same index!!
     indexToName[index] = name;
+}
+
+int Graph::getvertices()const
+{
+    return V;
 }
 void Graph::addVertex(const string& vertex) {
     if (nameToIndex.find(vertex) != nameToIndex.end()) {
@@ -466,6 +474,62 @@ void tempGraph(Graph*& g) {
     g->displayGraph();
 }
 
+void visualizeGraph(Graph*& g) {
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Graph Visualization");
+
+    std::map<int, sf::CircleShape> vertexShapes;
+    std::map<int, sf::Vector2f> vertexPositions;
+
+    float radius = 20.0f;
+    float angleStep = 360.0f / g->getvertices();
+    float centerX = window.getSize().x / 2;
+    float centerY = window.getSize().y / 2;
+    float distance = 200.0f;
+
+    for (int i = 0; i < g->getvertices(); ++i) {
+        sf::CircleShape circle(radius);
+        float angle = i * angleStep * (3.14159f / 180.0f);
+        float x = centerX + distance * cos(angle);
+        float y = centerY + distance * sin(angle);
+
+        circle.setPosition(x, y);
+        circle.setFillColor(sf::Color::Green);
+
+        vertexShapes[i] = circle;
+        vertexPositions[i] = sf::Vector2f(x + radius, y + radius); // Center of the circle
+    }
+
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        window.clear();
+
+        // Draw edges
+        for (int u = 0; u < g->getvertices(); ++u) {
+            for (DLLNode<pair<int, int>>* i = g->adj[u].begin(); i != g->adj[u].end(); i = i->next) {
+                int v = i->info.first;
+                sf::Vertex line[] = {
+                        sf::Vertex(vertexPositions[u], sf::Color::White),
+                        sf::Vertex(vertexPositions[v], sf::Color::White)
+                };
+                window.draw(line, 2, sf::Lines);
+            }
+        }
+
+        // Draw vertices
+        for (const auto& [index, shape] : vertexShapes) {
+            window.draw(shape);
+        }
+
+        window.display();
+    }
+}
+
+
 void interactiveMenu(Graph*& g) {
     int choice;
     do {
@@ -481,6 +545,7 @@ void interactiveMenu(Graph*& g) {
         cout << "9. Load Graph\n";
         cout << "10. Exit\n";
         cout << "11. TempGraph\n";
+        cout << "12. Visualize Graph\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -557,6 +622,9 @@ void interactiveMenu(Graph*& g) {
                 tempGraph(g);
                 cout << "Temporary graph loaded.\n";
                 break;
+
+            case 12:
+                visualizeGraph(g);
 
             default:
                 cout << "Invalid choice. Please try again.\n";

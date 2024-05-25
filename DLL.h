@@ -39,6 +39,6 @@ private:
     DLLNode<T>* tail;
 };
 
-#include "DLL.cpp"
+
 
 #endif // DLL_H
