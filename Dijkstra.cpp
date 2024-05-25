@@ -1,12 +1,16 @@
 // Program to find Dijkstra's shortest path using
-// priority_queue in STL
+// priority_queue in STL f
+
+#include <iostream>
 #include <cstdlib>
 #include <bits/stdc++.h>
 #include<fstream>
 #include <filesystem>
 #include "DLL.h"
 using namespace std;
+
 namespace fs = std::filesystem;
+
 #define INF 0x3f3f3f3f
 
 
@@ -69,7 +73,7 @@ void Graph::addNodeName(int index, const string& name) {
 
 void Graph::addVertex(const string& vertex) {
     if (nameToIndex.find(vertex) != nameToIndex.end()) {
-        cout << "Vertex " << vertex << " already exists." << endl;
+        cout << "Error: Vertex '" << vertex << "' already exists." << endl;
         return;
     }
 
@@ -88,12 +92,12 @@ void Graph::addVertex(const string& vertex) {
     nameToIndex[vertex] = newIndex;
     indexToName[newIndex] = vertex;
 
-    cout << "Vertex " << vertex << " added." << endl;
+    cout << "Vertex '" << vertex << "' added." << endl;
 }
 
 void Graph::removeVertex(const string& vertex) {
     if (nameToIndex.find(vertex) == nameToIndex.end()) {
-        cout << "Vertex " << vertex << " does not exist." << endl;
+        cout << "Error: Vertex '" << vertex << "' does not exist." << endl;
         return;
     }
 
@@ -129,42 +133,42 @@ void Graph::removeVertex(const string& vertex) {
     nameToIndex.erase(vertex);
     indexToName.erase(V);
 
-    cout << "Vertex " << vertex << " removed." << endl;
+    cout << "Vertex '" << vertex << "' removed." << endl;
 }
 
 void Graph::addEdge(const string& u, const string& v, int w) {
     if (nameToIndex.find(u) == nameToIndex.end() && nameToIndex.find(v) == nameToIndex.end()) {
-        cout << "Error: Vertex " << u <<" and Vertex "<< v <<" do not exist." << endl;
+        cout << "Error: Vertex '" << u <<"' and Vertex '"<< v <<"' do not exist." << endl;
         return;
     }
     if (nameToIndex.find(u) == nameToIndex.end()) {
-        cout << "Error: Vertex " << u << " does not exist." << endl;
+        cout << "Error: Vertex '" << u << "' does not exist." << endl;
         return;
     }
     if (nameToIndex.find(v) == nameToIndex.end()) {
-        cout << "Error: Vertex " << v << " does not exist." << endl;
+        cout << "Error: Vertex '" << v << "' does not exist." << endl;
         return;
     }
 
     int uIndex = nameToIndex[u];
     int vIndex = nameToIndex[v];
-    cout << "\nAdding edge from " << u << " to " << v << " with weight " << w << endl;
+    cout << "\nAdding edge from '" << u << "' to '" << v << "' with weight " << w << endl;
     adj[uIndex].push_back(make_pair(vIndex, w));
     adj[vIndex].push_back(make_pair(uIndex, w));
-    cout << "Edge added from " << u << " to " << v << " with weight " << w << endl;
+    cout << "Edge added from '" << u << "' to '" << v << "' with weight " << w << endl;
 }
 
 void Graph::removeEdge(const string& u, const string& v) {
     if (nameToIndex.find(u) == nameToIndex.end() && nameToIndex.find(v) == nameToIndex.end()) {
-        cout << "Error: Vertex " << u <<" and Vertex "<< v <<" do not exist." << endl;
+        cout << "Error: Vertex '" << u <<"' and Vertex '"<< v <<"' do not exist." << endl;
         return;
     }
     if (nameToIndex.find(u) == nameToIndex.end()) {
-        cout << "Error: Vertex " << u << " does not exist." << endl;
+        cout << "Error: Vertex '" << u << "' does not exist." << endl;
         return;
     }
     if (nameToIndex.find(v) == nameToIndex.end()) {
-        cout << "Error: Vertex " << v << " does not exist." << endl;
+        cout << "Error: Vertex '" << v << "' does not exist." << endl;
         return;
     }
 
@@ -190,7 +194,7 @@ void Graph::removeEdge(const string& u, const string& v) {
         }
         current = nextNode;
     }
-    cout << "Edge(s) removed between " << u<< " and " << v << ".\n";
+    cout << "Edge(s) removed between '" << u << "' and '" << v << "'.\n";
 }
 
 void Graph::printPath(vector<int>& prevVertex, int i) {
@@ -206,7 +210,7 @@ void Graph::printPath(vector<int>& prevVertex, int i) {
 // Prints shortest paths from src to all other vertices
 void Graph::shortestPath(const string& s) {
     if (nameToIndex.find(s) == nameToIndex.end()) {
-        cout << "Error: Vertex " << s << " does not exist." << endl;
+        cout << "Error: Vertex '" << s << "' does not exist." << endl;
         return;
     }
     int src = nameToIndex[s];
@@ -455,7 +459,7 @@ Graph* createNewGraph(int V, int E) {
             getline(cin, u);
 
             if (find(vertexNames.begin(), vertexNames.end(), u) == vertexNames.end()) {
-                cout << "Error: Vertex " << u << " does not exist. Please try again." << endl;
+                cout << "Error: Vertex '" << u << "' does not exist. Please try again." << endl;
             } else {
                 validInput = true;
             }
@@ -469,7 +473,7 @@ Graph* createNewGraph(int V, int E) {
             getline(cin, v);
 
             if (find(vertexNames.begin(), vertexNames.end(), v) == vertexNames.end()) {
-                cout << "Error: Vertex " << v << " does not exist. Please try again." << endl;
+                cout << "Error: Vertex '" << v << "' does not exist. Please try again." << endl;
             } else {
                 validInput = true;
             }
@@ -509,6 +513,7 @@ void Graph::displayGraph() {
 void Graph::editGraph() {
     int choice;
     do {
+
         cout << "\nEdit Graph Menu:\n";
         cout << "1. Add Vertex\n";
         cout << "2. Remove Vertex\n";
@@ -519,24 +524,41 @@ void Graph::editGraph() {
 
         cin >> choice;
         cin.ignore();
+        if (cin.fail()) {
+            cin.clear(); // Clear the error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
+        }
 
         string vertexName, uName, vName;
         int w;
 
         switch (choice) {
             case 1:
+                system("cls");
+                displayGraph();
+
                 cout << "Enter vertex name to add: ";
                 getline(cin, vertexName);
+
+                system("cls");
                 addVertex(vertexName);
                 break;
 
             case 2:
+                system("cls");
+                displayGraph();
+
                 cout << "Enter vertex name to remove: ";
                 getline(cin, vertexName);
+
+                system("cls");
                 removeVertex(vertexName);
                 break;
 
             case 3:
+                system("cls");
+                displayGraph();
+
                 cout << "Enter your edge's Starting Point: ";
                 getline(cin, uName);
                 cout << "Enter your edge's Destination Point: ";
@@ -553,21 +575,29 @@ void Graph::editGraph() {
                         break; // Input is valid, break out of the loop
                     }
                 }
+                system("cls");
                 addEdge(uName, vName, w);
                 break;
 
             case 4:
+                system("cls");
+                displayGraph();
+
                 cout << "Enter Starting Point of the edge to remove: ";
                 getline(cin, uName);
                 cout << "Enter Destination Point of the edge to remove: ";
                 getline(cin, vName);
+
+                system("cls");
                 removeEdge(uName, vName);
                 break;
 
             case 5:
+                system("cls");
                 return; // Back to Main Menu
 
             default:
+                system("cls");
                 cout << "Invalid choice. Please try again.\n";
         }
     } while (true);
@@ -618,12 +648,18 @@ void interactiveMenu(Graph*& g) {
 
         cin >> choice;
         cin.ignore();
+        if (cin.fail()) {
+            cin.clear(); // Clear the error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
+        }
 
         string vertexName, uName, vName, srcName, filename;
         int w;
 
         switch (choice) {
             case 1:
+                system("cls");
+
                 delete g;
                 int V, E;
 
@@ -652,12 +688,12 @@ void interactiveMenu(Graph*& g) {
                         break; // Input is valid, break out of the loop
                     }
                 }
-
                 g = createNewGraph(V, E);
                 cout << "\nNew graph created with " << V << " vertices and " << E << " edges.\n";
                 break;
 
             case 2:
+                system("cls");
 
                 if (g == nullptr) {
                     cout << "Error: No graph exists. Please create/load a new graph first.\n";
@@ -669,6 +705,8 @@ void interactiveMenu(Graph*& g) {
                 break;
 
             case 3:
+                system("cls");
+
                 if (g == nullptr) {
                     cout << "Error: No graph exists. Please create/load a new graph first.\n";
                     break;
@@ -679,6 +717,8 @@ void interactiveMenu(Graph*& g) {
                 break;
 
             case 4:
+                system("cls");
+
                 if (g == nullptr) {
                     cout << "Error: No graph exists. Please create/load a new graph first.\n";
                     break;
@@ -690,6 +730,8 @@ void interactiveMenu(Graph*& g) {
                 break;
 
             case 5:
+                system("cls");
+
                 if (g == nullptr) {
                     cout << "Error: No graph exists. Please create/load a new graph first.\n";
                     break;
@@ -702,21 +744,26 @@ void interactiveMenu(Graph*& g) {
                 break;
 
             case 6:
+                system("cls");
+
                 loadGraph(g);
                 cout << "Graph loaded from file.\n";
                 break;
 
             case 7:
+                system("cls");
                 cout << "Exiting...\n";
                 break;
 
             case 8:
+                system("cls");
                 cout << "Loading temporary graph...\n";
                 tempGraph(g);
                 cout << "Temporary graph loaded.\n";
                 break;
 
             default:
+                system("cls");
                 cout << "Invalid choice. Please try again.\n";
         }
     } while (choice != 7);
