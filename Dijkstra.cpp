@@ -19,9 +19,30 @@ typedef pair<int, int> iPair;
 
 
 
-template<typename T>
-class PriorityQueue{
+template<typename T, typename Compare = std::greater<T>>
 
+class PriorityQueue {
+    std::vector<T> data;
+    Compare comp;
+
+public:
+    bool empty() const {
+        return data.empty();
+    }
+
+    void push(const T& value) {
+        data.push_back(value);
+        std::push_heap(data.begin(), data.end(), comp);
+    }
+
+    void pop() {
+        std::pop_heap(data.begin(), data.end(), comp);
+        data.pop_back();
+    }
+
+    T top() const {
+        return data.front();
+    }
 };
 
 // This class represents a directed graph using
@@ -207,19 +228,18 @@ void Graph::printPath(vector<int>& prevVertex, int i) {
 
 }
 
+
 // Prints shortest paths from src to all other vertices
 void Graph::shortestPath(const string& s) {
     if (nameToIndex.find(s) == nameToIndex.end()) {
-        cout << "Error: Vertex '" << s << "' does not exist." << endl;
+        cout << "Error: Vertex " << s << " does not exist." << endl;
         return;
     }
     int src = nameToIndex[s];
 
     // Create a priority queue to store vertices that
-    // are being preprocessed. This is weird syntax in C++.
-    // Refer below link for details of this syntax
-    // https://www.geeksforgeeks.org/implement-min-heap-using-stl/
-    priority_queue<iPair, vector<iPair>, greater<iPair>> pq;
+    // are being preprocessed.
+    PriorityQueue<iPair, greater<iPair>> pq;
 
 
     // Create a vector for distances and initialize all
