@@ -166,16 +166,9 @@ void Graph::removeVertex(const string& vertex) {
 
     auto* newGraph = new Graph(V-1);
     for (int i = 0; i < V-1; i++) {
-       // if (i < index) {
             newGraph->adj[i] = adj[i];
             newGraph->indexToName[i] = indexToName[i];
             newGraph->nameToIndex[indexToName[i]] = nameToIndex[indexToName[i]];
-       /* } else if (i >= index) {
-            newGraph->adj[i] = adj[i+1];
-            newGraph->indexToName[i] = indexToName[i+1];
-            newGraph->nameToIndex[indexToName[i]] = 1;
-        }*/
-
     }
 
     cout << "Vertex " << vertex << " added." << endl;
