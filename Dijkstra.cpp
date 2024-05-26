@@ -7,6 +7,7 @@
 #include<fstream>
 #include <filesystem>
 #include "DLL.h"
+#include <SFML/Graphics.hpp>
 using namespace std;
 
 namespace fs = std::filesystem;
