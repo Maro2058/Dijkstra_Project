@@ -26,18 +26,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fde9886f-bfcf-4ebc-823c-d89613494911" name="Changes" comment="Added Names to the vertices and edited To Do List">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dijkstra.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Dijkstra.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GraphMorad.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Graphs.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Morad.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeConfigureLog.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeConfigureLog.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/sfml-subbuild/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/_deps/sfml-subbuild/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/sfml-subbuild/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/_deps/sfml-subbuild/build.ninja" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
-    </list>
+    <list default="true" id="fde9886f-bfcf-4ebc-823c-d89613494911" name="Changes" comment="Added Names to the vertices and edited To Do List" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -224,7 +213,7 @@
       <workItem from="1716037842732" duration="49182000" />
       <workItem from="1716406707061" duration="57000" />
       <workItem from="1716406782084" duration="58812000" />
-      <workItem from="1716747580594" duration="2925000" />
+      <workItem from="1716747580594" duration="3620000" />
     </task>
     <task id="LOCAL-00001" summary="Added Names to the vertices and edited To Do List">
       <option name="closed" value="true" />
