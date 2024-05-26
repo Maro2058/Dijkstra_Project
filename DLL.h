@@ -11,7 +11,12 @@ public:
     DLLNode() : next(nullptr), prev(nullptr) {}
     DLLNode(T el, DLLNode* ptr_next = nullptr, DLLNode* ptr_prev = nullptr)
         : info(el), next(ptr_next), prev(ptr_prev) {}
+
+
+    DLLNode& operator=(const DLLNode& other);
 };
+
+
 
 
 template<typename T>
@@ -31,6 +36,7 @@ public:
     bool isInList(T el) const;
     void printAll() const;
     void insertBeforeAndAfter(DLLNode<T>* p, T data);
+    void clear();
 
     template <typename Predicate>
     void remove_if(Predicate pred);
@@ -38,7 +44,6 @@ private:
     DLLNode<T>* head;
     DLLNode<T>* tail;
 };
-
 
 
 #endif // DLL_H
