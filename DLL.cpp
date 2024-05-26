@@ -25,6 +25,13 @@ template <typename T>
 DLLNode<T>* DLL<T>::end() const {
     return nullptr;
 }
+template<typename T>
+DLLNode<T> & DLLNode<T>::operator=(const DLLNode &other) {
+    info = other.info;
+    next = other->next;
+    prev = other->prev;
+    return *this;
+}
 
 template <typename T>
 void DLL<T>::addToHead(T el) {
@@ -164,4 +171,15 @@ void DLL<T>::remove_if(Predicate pred) {
             current = current->next;
         }
     }
+}
+template<typename T>
+void DLL<T>::clear() {
+    DLLNode<T>* current = head;
+    while (current != nullptr) {
+        DLLNode<T>* next = current->next; // Store next node before deletion
+        delete current; // Delete current node
+        current = next; // Move to next node
+    }
+    head = nullptr; // Reset head pointer
+    tail = nullptr; // Reset tail pointer
 }

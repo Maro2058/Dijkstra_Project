@@ -13,10 +13,8 @@ namespace fs = std::filesystem;
 
 #define INF 0x3f3f3f3f
 
-
 // iPair ==> Integer Pair
 typedef pair<int, int> iPair;
-
 
 
 template<typename T, typename Compare = std::greater<T>>
@@ -53,14 +51,13 @@ class Graph {
     // and weight pair for every edge
     map<string, int> nameToIndex;
     map<int, string> indexToName;
+    DLL<pair<int, int>>* adj;
 
 public:
-    DLL<pair<int, int>>* adj;
     Graph(int V); // Constructor
     Graph();
     // function to add an edge to graph
     void addEdge(const string& u, const string& v, int w);
-    void addEdge(int u, int v, int w);
     // function to add and remove vertex
     void addVertex(const string& vertex);
     void removeVertex(const string& vertex);
@@ -72,12 +69,32 @@ public:
     // Save graph to a file
     void saveGraph(const string& filename);
     // Load graph from a file
+    static void loadGraph(Graph*& g);
+    static void removeGraph();
     // Display the graph
     void displayGraph();
     void editGraph();
     void addNodeName(int index, const string& name);
-
+    friend vector<string> findFile();
+    Graph& operator=(const Graph& other);
 };
+
+Graph& Graph::operator=(const Graph& other) {
+    if (this != &other) { // Check for self-assignment
+        // Copy data members
+        V = other.V;
+        // Copy adjacency lists
+        adj = new DLL<pair<int, int>>[V];
+        for (int i = 0; i < V; ++i) {
+            adj[i] = other.adj[i];
+        }
+        // Copy indexToName and nameToIndex maps
+        indexToName = other.indexToName;
+        nameToIndex = other.nameToIndex;
+    }
+    return *this;
+}
+
 
 // Allocates memory for adjacency list
 Graph::Graph(int V)
@@ -98,63 +115,72 @@ void Graph::addVertex(const string& vertex) {
         return;
     }
 
-    int newIndex = V;
-    V++;
-
-    // Expand the adjacency list
-    DLL<pair<int, int>>* newAdj = new DLL<iPair>[V];
-    for (int i = 0; i < V - 1; ++i) {
-        newAdj[i] = adj[i];
+    auto* newGraph = new Graph(V+1);
+    for (int i = 0; i < V; i++) {
+        newGraph->adj[i] = adj[i];
+        newGraph->indexToName[i] = indexToName[i];
+        newGraph->nameToIndex[indexToName[i]] = nameToIndex[indexToName[i]];
     }
-    delete[] adj;
-    adj = newAdj;
 
-    // Add the new vertex to the maps
-    nameToIndex[vertex] = newIndex;
-    indexToName[newIndex] = vertex;
-
-    cout << "Vertex '" << vertex << "' added." << endl;
+    newGraph->nameToIndex[vertex] = V;
+    newGraph->indexToName[V] = vertex;
+    cout << "Error: Vertex " << vertex << " added." << endl;
+    *this = *newGraph;
+    delete newGraph;
 }
 
 void Graph::removeVertex(const string& vertex) {
     if (nameToIndex.find(vertex) == nameToIndex.end()) {
+
         cout << "Error: Vertex '" << vertex << "' does not exist." << endl;
+
         return;
     }
 
     int index = nameToIndex[vertex];
 
+
+    // Remove the vertex from the adjacency list and maps
+    for (int u = index; u < V-1; u++) {
+        adj[u] = adj[u + 1];
+        indexToName[u]= indexToName[u+1];
+        nameToIndex[indexToName[u]] = u;
+    }
+
     // Remove all edges associated with this vertex
-    for (int u = 0; u < V; ++u) {
+    for (int u = 0; u < V; u++) {
         DLLNode<pair<int, int>>* current = adj[u].begin();
-        while (current != nullptr) {
-            DLLNode<pair<int, int>>* nextNode = current->next;
+        while (current != adj[u].end()) {
+            DLLNode<pair<int, int>>*nextNode = current->next;
             if (current->info.first == index) {
                 adj[u].deleteNode(current->info);
+            } else if(current->info.first >= index) {
+                current->info.first--;
             }
             current = nextNode;
         }
     }
 
-    // Remove the vertex from the adjacency list and maps
-    for (int u = index; u < V - 1; ++u) {
-        adj[u] = adj[u + 1];
-        indexToName[u] = indexToName[u + 1];
-        nameToIndex[indexToName[u]] = u;
+
+
+
+    auto* newGraph = new Graph(V-1);
+    for (int i = 0; i < V-1; i++) {
+       // if (i < index) {
+            newGraph->adj[i] = adj[i];
+            newGraph->indexToName[i] = indexToName[i];
+            newGraph->nameToIndex[indexToName[i]] = nameToIndex[indexToName[i]];
+       /* } else if (i >= index) {
+            newGraph->adj[i] = adj[i+1];
+            newGraph->indexToName[i] = indexToName[i+1];
+            newGraph->nameToIndex[indexToName[i]] = 1;
+        }*/
+
     }
-    V--;
 
-    DLL<iPair>* newAdj = new DLL<iPair>[V];
-    for (int i = 0; i < V; ++i) {
-        newAdj[i] = adj[i];
-    }
-    delete[] adj;
-    adj = newAdj;
-
-    nameToIndex.erase(vertex);
-    indexToName.erase(V);
-
-    cout << "Vertex '" << vertex << "' removed." << endl;
+    cout << "Vertex " << vertex << " added." << endl;
+    *this = *newGraph;
+    delete newGraph;
 }
 
 void Graph::addEdge(const string& u, const string& v, int w) {
@@ -198,7 +224,7 @@ void Graph::removeEdge(const string& u, const string& v) {
 
     // Remove all edges from u to v
     DLLNode<iPair>* current = adj[uIndex].begin();
-    while (current != nullptr) {
+    while (current != adj[uIndex].end()) {
         DLLNode<iPair>* nextNode = current->next;
         if (current->info.first == vIndex) {
             adj[uIndex].deleteNode(current->info);
@@ -294,6 +320,24 @@ void Graph::shortestPath(const string& s) {
     }
 }
 
+vector<string> findFile(const string& foldername) {
+    vector<string> txt_files;
+    // Iterate over each file in the folder
+    for (const auto& entry : fs::directory_iterator(foldername)) {
+        // Check if the entry is a regular file and has a .txt extension
+        if (fs::is_regular_file(entry.path()) && entry.path().extension() == ".txt") {
+            string filename1 = entry.path().filename().string();
+            txt_files.push_back(filename1); // Store the filename in a vector
+        }
+    }
+
+    if (txt_files.empty()) {
+        std::cerr << "No graphs found in folder: " << foldername << std::endl;
+        return txt_files;
+    }
+    return txt_files;
+}
+
 // Save graph to a file
 void Graph::saveGraph(const string& f) {
     string Filename = f +".txt";
@@ -305,17 +349,13 @@ void Graph::saveGraph(const string& f) {
         return;
     }
 
-    vector<string> txt_files;
+    vector<string> txt_files = findFile(foldername);
 
     // Iterate over each file in the folder
-    //fs::directory_iterator(foldername) this creates an iterator to loop through the contents of the directory specified by foldername.
-    for (const auto& entry : fs::directory_iterator(foldername) ) { // This loop iterates over each entry found in the directory.
-        // Check if the entry is a regular file and has a .txt extension
-        if (fs::is_regular_file(entry.path()) && entry.path().extension() == ".txt") {
-            string filename1 = entry.path().filename().string();
-            if(filename1 == Filename)
+    for (const auto& entry : txt_files ) { // This loop iterates over each entry found in the directory.
+            if(entry == Filename)
             {
-                cout<<"name already exists, Do you want to overwrite?"<<endl<<"1.Yes\n2.No"<<endl;
+                cout<<"name already exists, Do you wish to overwrite?"<<endl<<"1.Yes\n2.No"<<endl;
                 int choice;
                 cin>>choice;
                 while(choice > 2 || choice < 1)
@@ -334,7 +374,6 @@ void Graph::saveGraph(const string& f) {
                 }
             }
         }
-    }
     ofstream outFile(Filename);
     if (!outFile) {
         cerr << "Error opening file for writing: " << Filename << endl;
@@ -361,7 +400,7 @@ void Graph::saveGraph(const string& f) {
     }
 }
 
-void loadGraph(Graph*& g) {
+void Graph::loadGraph(Graph*& g) {
     if (g) {
         delete g;// delete the graph if there is anything in there already
         g = nullptr;
@@ -373,22 +412,7 @@ void loadGraph(Graph*& g) {
         return;
     }
 
-    vector<string> txt_files;
-
-    // Iterate over each file in the folder
-    for (const auto& entry : fs::directory_iterator(foldername)) {
-        // Check if the entry is a regular file and has a .txt extension
-        if (fs::is_regular_file(entry.path()) && entry.path().extension() == ".txt") {
-            string filename1 = entry.path().filename().string();
-            txt_files.push_back(filename1); // Store the filename in a vector
-            cout << "Found file: " << filename1 << std::endl;
-        }
-    }
-
-    if (txt_files.empty()) {
-        std::cerr << "No .txt files found in folder: " << foldername << std::endl;
-        return;
-    }
+    vector<string> txt_files = findFile(foldername);
 
     // Print available files for selection
     cout << "Available .txt files in folder: " <<endl;
@@ -401,7 +425,7 @@ void loadGraph(Graph*& g) {
     cout << "Enter the number corresponding to the file you want to load: ";
     cin >> choice;
 
-    if (choice < 1 || choice > static_cast<int>(txt_files.size())) {
+    while (choice < 1 || choice > static_cast<int>(txt_files.size())) {
         cerr << "Invalid choice. Please enter a valid number." << std::endl;
         return;
     }
@@ -451,8 +475,34 @@ void loadGraph(Graph*& g) {
     inFile.close();
 }
 
+void Graph::removeGraph() {
+    fs::path folderPath = fs::current_path();
+    string foldername = folderPath.string();
+    vector<string> txt_files = findFile(foldername);
+
+    // Print available files for selection
+    cout << "Available .txt files in folder: " <<endl;
+    for (size_t i = 0; i < txt_files.size(); ++i) {
+        cout << i + 1 << ". " << txt_files[i] << endl;
+    }
+
+    int choice;
+    cout << "Enter the number corresponding to the file you want to remove: ";
+    cin >> choice;
+
+    while (choice < 1 || choice > static_cast<int>(txt_files.size())) {
+        cerr << "Invalid choice. Please enter a valid number." << std::endl;
+        return;
+    }
+    string filename = txt_files[choice -1];
+    if(remove(filename.c_str()) == 0)
+        cout<< "File successfully deleted "<<endl;
+    else
+        cout<<"Deletion Failed"<<endl;
+    }
+
 Graph* createNewGraph(int V, int E) {
-    Graph* newGraph = new Graph(V);
+    auto* newGraph = new Graph(V);
     vector<string> vertexNames(V);
 
     // Input vertex names
@@ -535,8 +585,8 @@ void Graph::editGraph() {
     do {
 
         cout << "\nEdit Graph Menu:\n";
-        cout << "1. Add Vertex\n";
-        cout << "2. Remove Vertex\n";
+        cout << "1. Add Vertex \n";
+        cout << "2. Remove Vertex (WIP)\n";
         cout << "3. Add Edge\n";
         cout << "4. Remove Edge\n";
         cout << "5. Back to Main Menu\n";
@@ -662,8 +712,9 @@ void interactiveMenu(Graph*& g) {
         cout << "4. Find Shortest Path\n";
         cout << "5. Save Graph\n";
         cout << "6. Load Graph\n";
-        cout << "7. Exit\n";
-        cout << "8. TempGraph\n";
+        cout << "7. Remove Graph\n";
+        cout << "8. Exit\n";
+        cout << "9. TempGraph\n";
         cout << "Enter your choice: ";
 
         cin >> choice;
@@ -674,7 +725,6 @@ void interactiveMenu(Graph*& g) {
         }
 
         string vertexName, uName, vName, srcName, filename;
-        int w;
 
         switch (choice) {
             case 1:
@@ -732,7 +782,6 @@ void interactiveMenu(Graph*& g) {
                     break;
                 }
 
-                cout << "\nDisplaying the graph:\n";
                 g->displayGraph();
                 break;
 
@@ -758,26 +807,23 @@ void interactiveMenu(Graph*& g) {
                 }
                 cout << "Enter filename to save graph: ";
                 getline(cin,filename);
-
                 g->saveGraph(filename);
                 cout << "Graph saved to " << filename << ".\n";
                 break;
 
             case 6:
                 system("cls");
-
-                loadGraph(g);
+                Graph::loadGraph(g);
                 cout << "Graph loaded from file.\n";
                 break;
-
             case 7:
                 system("cls");
+                Graph::removeGraph();
+                break;
+            case 8:
                 cout << "Exiting...\n";
                 break;
-
-            case 8:
-                system("cls");
-                cout << "Loading temporary graph...\n";
+            case 9:
                 tempGraph(g);
                 cout << "Temporary graph loaded.\n";
                 break;
