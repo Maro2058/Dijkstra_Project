@@ -111,7 +111,9 @@ void Graph::removeVertex(const string& vertex) {
         DLLNode<pair<int, int>>* current = adj[u].begin();
         while (current != nullptr) {
             DLLNode<pair<int, int>>* nextNode = current->next;
-            if (current->info.first == index) {
+            if(u == index || current->info.first == index)
+            {
+                cout<<"info: "<<current->info.first<<endl;
                 adj[u].deleteNode(current->info);
             }
             current = nextNode;
@@ -121,6 +123,7 @@ void Graph::removeVertex(const string& vertex) {
     // Remove the vertex from the adjacency list and maps
     for (int u = index; u < V - 1; ++u) {
         adj[u] = adj[u + 1];
+        cout<<indexToName[u]<<endl;
         indexToName[u] = indexToName[u + 1];
         nameToIndex[indexToName[u]] = u;
     }
@@ -132,7 +135,7 @@ void Graph::removeVertex(const string& vertex) {
     }
     delete[] adj;
     adj = newAdj;
-
+    displayGraph();
     nameToIndex.erase(vertex);
     indexToName.erase(V);
 
@@ -474,29 +477,48 @@ void tempGraph(Graph*& g) {
     g->displayGraph();
 }
 
-void visualizeGraph(Graph*& g) {
+void Graph :: visualize() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Graph Visualization");
 
     std::map<int, sf::CircleShape> vertexShapes;
     std::map<int, sf::Vector2f> vertexPositions;
 
     float radius = 20.0f;
-    float angleStep = 360.0f / g->getvertices();
+    float angleStep = 360.0f / V;
     float centerX = window.getSize().x / 2;
     float centerY = window.getSize().y / 2;
     float distance = 200.0f;
 
-    for (int i = 0; i < g->getvertices(); ++i) {
+    // Load a font
+    sf::Font font;
+    if (!font.loadFromFile("arial.ttf")) { // Ensure the font file is in the project directory
+        std::cerr << "Failed to load font 'arial.ttf'" << std::endl;
+        return;
+    }
+
+    std::map<int, sf::Text> vertexLabels;
+
+    for (int i = 0; i < V; ++i) {
         sf::CircleShape circle(radius);
         float angle = i * angleStep * (3.14159f / 180.0f);
         float x = centerX + distance * cos(angle);
         float y = centerY + distance * sin(angle);
 
         circle.setPosition(x, y);
-        circle.setFillColor(sf::Color::Green);
+        circle.setFillColor(sf::Color::Blue);
 
         vertexShapes[i] = circle;
         vertexPositions[i] = sf::Vector2f(x + radius, y + radius); // Center of the circle
+
+        // Create vertex label
+        sf::Text label;
+        label.setFont(font);
+        label.setString(indexToName[i]); // You can replace i with the actual vertex name if available
+        label.setCharacterSize(15);
+        label.setFillColor(sf::Color::White);
+        label.setPosition(x + radius / 2, y + radius / 2); // Adjust position as needed
+
+        vertexLabels[i] = label;
     }
 
     while (window.isOpen()) {
@@ -506,11 +528,12 @@ void visualizeGraph(Graph*& g) {
                 window.close();
         }
 
-        window.clear();
+        // Set background color
+        window.clear(sf::Color(50, 50, 50)); // Change RGB values for different background color
 
         // Draw edges
-        for (int u = 0; u < g->getvertices(); ++u) {
-            for (DLLNode<pair<int, int>>* i = g->adj[u].begin(); i != g->adj[u].end(); i = i->next) {
+        for (int u = 0; u < V; ++u) {
+            for (DLLNode<pair<int, int>>* i = this->adj[u].begin(); i != this->adj[u].end(); i = i->next) {
                 int v = i->info.first;
                 sf::Vertex line[] = {
                         sf::Vertex(vertexPositions[u], sf::Color::White),
@@ -523,6 +546,11 @@ void visualizeGraph(Graph*& g) {
         // Draw vertices
         for (const auto& [index, shape] : vertexShapes) {
             window.draw(shape);
+        }
+
+        // Draw vertex labels
+        for (const auto& [index, label] : vertexLabels) {
+            window.draw(label);
         }
 
         window.display();
@@ -624,7 +652,7 @@ void interactiveMenu(Graph*& g) {
                 break;
 
             case 12:
-                visualizeGraph(g);
+                g->visualize();
 
             default:
                 cout << "Invalid choice. Please try again.\n";
