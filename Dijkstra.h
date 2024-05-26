@@ -5,15 +5,18 @@
 #include <iostream>
 #include <cstdlib>
 #include <bits/stdc++.h>
-#include <fstream>
+#include<fstream>
 #include <filesystem>
 #include "DLL.h"
-#include "PriorityQueue.h"
+#include <SFML/Graphics.hpp>
 using namespace std;
 
 namespace fs = std::filesystem;
 
 #define INF 0x3f3f3f3f
+
+// iPair ==> Integer Pair
+typedef pair<int, int> iPair;
 
 // This class represents a directed graph using
 // adjacency list representation

@@ -1,22 +1,6 @@
 // Program to find Dijkstra's shortest path using
 // priority_queue in STL f
-
-#include <iostream>
-#include <cstdlib>
-#include <bits/stdc++.h>
-#include<fstream>
-#include <filesystem>
-#include "DLL.h"
-#include <SFML/Graphics.hpp>
-using namespace std;
-
-namespace fs = std::filesystem;
-
-#define INF 0x3f3f3f3f
-
-// iPair ==> Integer Pair
-typedef pair<int, int> iPair;
-
+#include "Dijkstra.h"
 
 template<typename T, typename Compare = std::greater<T>>
 
