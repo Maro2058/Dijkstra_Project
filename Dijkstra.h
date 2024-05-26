@@ -50,8 +50,13 @@ public:
     void displayGraph();
     void editGraph();
     void addNodeName(int index, const string& name);
+
+    int getvertices() const;
+
     friend vector<string> findFile();
     Graph& operator=(const Graph& other);
+    void visualize();
+
 };
 
 void interactiveMenu(Graph*& g);
