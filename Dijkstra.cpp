@@ -1,83 +1,11 @@
 // Program to find Dijkstra's shortest path using
 // priority_queue in STL f
 
-#include <iostream>
-#include <cstdlib>
-#include <bits/stdc++.h>
-#include<fstream>
-#include <filesystem>
-#include "DLL.h"
-using namespace std;
-
-namespace fs = std::filesystem;
-
-#define INF 0x3f3f3f3f
+#include "Dijkstra.h"
 
 // iPair ==> Integer Pair
 typedef pair<int, int> iPair;
 
-
-template<typename T, typename Compare = std::greater<T>>
-
-class PriorityQueue {
-    std::vector<T> data;
-    Compare comp;
-
-public:
-    bool empty() const {
-        return data.empty();
-    }
-
-    void push(const T& value) {
-        data.push_back(value);
-        std::push_heap(data.begin(), data.end(), comp);
-    }
-
-    void pop() {
-        std::pop_heap(data.begin(), data.end(), comp);
-        data.pop_back();
-    }
-
-    T top() const {
-        return data.front();
-    }
-};
-
-// This class represents a directed graph using
-// adjacency list representation
-class Graph {
-    int V; // No. of vertices
-    // In a weighted graph, we need to store vertex
-    // and weight pair for every edge
-    map<string, int> nameToIndex;
-    map<int, string> indexToName;
-    DLL<pair<int, int>>* adj;
-
-public:
-    Graph(int V); // Constructor
-    Graph();
-    // function to add an edge to graph
-    void addEdge(const string& u, const string& v, int w);
-    // function to add and remove vertex
-    void addVertex(const string& vertex);
-    void removeVertex(const string& vertex);
-    // function to remove an edge from the graph
-    void removeEdge(const string& u, const string& v);
-    void printPath(vector<int>& prevVertex, int i);
-    // prints shortest path from s
-    void shortestPath(const string& s);
-    // Save graph to a file
-    void saveGraph(const string& filename);
-    // Load graph from a file
-    static void loadGraph(Graph*& g);
-    static void removeGraph();
-    // Display the graph
-    void displayGraph();
-    void editGraph();
-    void addNodeName(int index, const string& name);
-    friend vector<string> findFile();
-    Graph& operator=(const Graph& other);
-};
 
 Graph& Graph::operator=(const Graph& other) {
     if (this != &other) { // Check for self-assignment
@@ -124,7 +52,7 @@ void Graph::addVertex(const string& vertex) {
 
     newGraph->nameToIndex[vertex] = V;
     newGraph->indexToName[V] = vertex;
-    cout << "Error: Vertex " << vertex << " added." << endl;
+    cout << "Error: Vertex '" << vertex << "' added." << endl;
     *this = *newGraph;
     delete newGraph;
 }
@@ -138,7 +66,6 @@ void Graph::removeVertex(const string& vertex) {
     }
 
     int index = nameToIndex[vertex];
-
 
     // Remove the vertex from the adjacency list and maps
     for (int u = index; u < V-1; u++) {
@@ -161,9 +88,6 @@ void Graph::removeVertex(const string& vertex) {
         }
     }
 
-
-
-
     auto* newGraph = new Graph(V-1);
     for (int i = 0; i < V-1; i++) {
             newGraph->adj[i] = adj[i];
@@ -171,7 +95,7 @@ void Graph::removeVertex(const string& vertex) {
             newGraph->nameToIndex[indexToName[i]] = nameToIndex[indexToName[i]];
     }
 
-    cout << "Vertex " << vertex << " added." << endl;
+    cout << "Vertex '" << vertex << "' removed." << endl;
     *this = *newGraph;
     delete newGraph;
 }
@@ -246,7 +170,6 @@ void Graph::printPath(vector<int>& prevVertex, int i) {
     cout << "->" << indexToName[i] ;
 
 }
-
 
 // Prints shortest paths from src to all other vertices
 void Graph::shortestPath(const string& s) {
@@ -415,8 +338,18 @@ void Graph::loadGraph(Graph*& g) {
 
     // User selects a file
     int choice;
-    cout << "Enter the number corresponding to the file you want to load: ";
-    cin >> choice;
+    while (true) {
+        cout << "Enter the number corresponding to the file you want to load: ";
+        cin >> choice;
+        if (cin.fail()) {
+            cin.clear(); // Clear the error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
+            cout << "Error: Must be an integer. Please try again." << endl;
+        } else {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the newline character from the input buffer
+            break; // Input is valid, break out of the loop
+        }
+    }
 
     while (choice < 1 || choice > static_cast<int>(txt_files.size())) {
         cerr << "Invalid choice. Please enter a valid number." << std::endl;
@@ -425,6 +358,7 @@ void Graph::loadGraph(Graph*& g) {
 
     ifstream inFile(txt_files[choice - 1]);
     if (!inFile) {
+        system("cls");
         cerr << "Error opening file for reading " << endl;
         return;
     }
@@ -474,25 +408,38 @@ void Graph::removeGraph() {
     vector<string> txt_files = findFile(foldername);
 
     // Print available files for selection
-    cout << "Available .txt files in folder: " <<endl;
+    cout << "Available .txt files in folder: " << endl;
     for (size_t i = 0; i < txt_files.size(); ++i) {
         cout << i + 1 << ". " << txt_files[i] << endl;
     }
 
     int choice;
-    cout << "Enter the number corresponding to the file you want to remove: ";
-    cin >> choice;
+    while (true) {
+        cout << "Enter the number corresponding to the file you want to remove: ";
+        cin >> choice;
+        if (cin.fail()) {
+            cin.clear(); // Clear the error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
+            cout << "Error: Must be an integer. Please try again." << endl;
+        } else {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the newline character from the input buffer
+            break; // Input is valid, break out of the loop
+        }
+    }
 
     while (choice < 1 || choice > static_cast<int>(txt_files.size())) {
-        cerr << "Invalid choice. Please enter a valid number." << std::endl;
+        cout << "Invalid choice. Please enter a valid number." << std::endl;
         return;
     }
-    string filename = txt_files[choice -1];
-    if(remove(filename.c_str()) == 0)
-        cout<< "File successfully deleted "<<endl;
-    else
-        cout<<"Deletion Failed"<<endl;
+    string filename = txt_files[choice - 1];
+    if (remove(filename.c_str()) == 0) {
+        system("cls");
+        cout << "File successfully deleted " << endl;
+    } else {
+        system("cls");
+        cout << "Deletion Failed" << endl;
     }
+}
 
 Graph* createNewGraph(int V, int E) {
     auto* newGraph = new Graph(V);
@@ -565,9 +512,9 @@ Graph* createNewGraph(int V, int E) {
 
 void Graph::displayGraph() {
     for (int u = 0; u < V; ++u) {
-        cout << "Vertex " << indexToName[u] << " makes an edge with\n";
+        cout << "Vertex '" << indexToName[u] << "' makes an edge with\n";
         for (DLLNode<pair<int,int>>* i = adj[u].begin(); i != adj[u].end(); i = i->next) {
-            cout << "\tVertex " << indexToName[i->info.first] << " with weight=" << i->info.second << endl;
+            cout << "\tVertex '" << indexToName[i->info.first] << "' with weight=" << i->info.second << endl;
         }
         cout << endl;
     }
@@ -814,9 +761,11 @@ void interactiveMenu(Graph*& g) {
                 Graph::removeGraph();
                 break;
             case 8:
+                system("cls");
                 cout << "Exiting...\n";
                 break;
             case 9:
+                system("cls");
                 tempGraph(g);
                 cout << "Temporary graph loaded.\n";
                 break;
@@ -825,16 +774,6 @@ void interactiveMenu(Graph*& g) {
                 system("cls");
                 cout << "Invalid choice. Please try again.\n";
         }
-    } while (choice != 7);
+    } while (choice != 8);
 }
 
-
-int main()
-{
-
-    Graph* g = nullptr;
-    interactiveMenu(g);
-
-    delete g;
-    return 0;
-}
