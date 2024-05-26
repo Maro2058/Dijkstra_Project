@@ -16,7 +16,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SFML)
 
 # Add the executable target
-add_executable(Dijkstra_Project Dijkstra.cpp Dijkstra.h DLL.cpp DLL.h)
+add_executable(Dijkstra_Project Dijkstra.cpp Dijkstra.h DLL.cpp DLL.h
+        main.cpp)
 
 # Link SFML libraries to the executable target
 target_link_libraries(Dijkstra_Project PRIVATE sfml-graphics)

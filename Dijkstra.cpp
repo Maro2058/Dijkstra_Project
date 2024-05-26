@@ -11,44 +11,15 @@
 #include "DLL.cpp"
 #include "DLL.h"
 #include <SFML/Graphics.hpp>
+#include "PriorityQueue.h"
 
 using namespace std;
-
 namespace fs = std::filesystem;
 
 #define INF 0x3f3f3f3f
 
 // iPair ==> Integer Pair
 typedef pair<int, int> iPair;
-
-
-template<typename T, typename Compare = std::greater<T>>
-
-class PriorityQueue {
-    std::vector<T> data;
-    Compare comp;
-
-public:
-    bool empty() const {
-        return data.empty();
-    }
-
-    void push(const T& value) {
-        data.push_back(value);
-        std::push_heap(data.begin(), data.end(), comp);
-    }
-
-    void pop() {
-        std::pop_heap(data.begin(), data.end(), comp);
-        data.pop_back();
-    }
-
-    T top() const {
-        return data.front();
-    }
-};
-
-
 
 Graph& Graph::operator=(const Graph& other) {
     if (this != &other) { // Check for self-assignment
@@ -299,10 +270,6 @@ vector<string> findFile(const string& foldername) {
         }
     }
 
-    if (txt_files.empty()) {
-        std::cerr << "No graphs found in folder: " << foldername << std::endl;
-        return txt_files;
-    }
     return txt_files;
 }
 
@@ -311,7 +278,8 @@ void Graph::saveGraph(const string& f) {
     string Filename = f +".txt";
 
     fs::path folderPath = fs::current_path();
-    string foldername = folderPath.string();
+
+    string foldername = folderPath.string()+ "\\graphs";
     if (!fs::exists(foldername)) {
         std::cerr << "Folder does not exist: " << foldername << std::endl;
         return;
@@ -342,7 +310,7 @@ void Graph::saveGraph(const string& f) {
                 }
             }
         }
-    ofstream outFile(Filename);
+    ofstream outFile(folderPath.string() + Filename);
     if (!outFile) {
         cerr << "Error opening file for writing: " << Filename << endl;
         return;
@@ -374,7 +342,7 @@ void Graph::loadGraph(Graph*& g) {
         g = nullptr;
     }
     fs::path folderPath = fs::current_path();
-    string foldername = folderPath.string();
+    string foldername = folderPath.string()+ "\\graphs";
     if (!fs::exists(foldername)) {
         std::cerr << "Folder does not exist: " << foldername << std::endl;
         return;
@@ -871,7 +839,7 @@ void interactiveMenu(Graph*& g) {
                 break;
             case 8:
                 cout << "Exiting...\n";
-                break;
+                return;
             case 9:
                 tempGraph(g);
                 cout << "Temporary graph loaded.\n";
@@ -885,12 +853,4 @@ void interactiveMenu(Graph*& g) {
 }
 
 
-int main()
-{
 
-    Graph* g = nullptr;
-    interactiveMenu(g);
-
-    delete g;
-    return 0;
-}
