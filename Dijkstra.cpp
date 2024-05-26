@@ -279,7 +279,8 @@ void Graph::saveGraph(const string& f) {
 
     fs::path folderPath = fs::current_path();
 
-    string foldername = folderPath.string()+ "\\graphs";
+    string foldername = folderPath.string()+"\\graphs\\";
+
     if (!fs::exists(foldername)) {
         std::cerr << "Folder does not exist: " << foldername << std::endl;
         return;
@@ -310,11 +311,12 @@ void Graph::saveGraph(const string& f) {
                 }
             }
         }
-    ofstream outFile(folderPath.string() + Filename);
+    ofstream outFile(foldername + Filename);
     if (!outFile) {
         cerr << "Error opening file for writing: " << Filename << endl;
         return;
     }
+    cout << foldername + Filename << endl;
 
     // Write number of vertices and edges
     outFile << V << endl;
@@ -342,7 +344,7 @@ void Graph::loadGraph(Graph*& g) {
         g = nullptr;
     }
     fs::path folderPath = fs::current_path();
-    string foldername = folderPath.string()+ "\\graphs";
+    string foldername = folderPath.string()+"\\graphs\\";
     if (!fs::exists(foldername)) {
         std::cerr << "Folder does not exist: " << foldername << std::endl;
         return;
@@ -366,7 +368,7 @@ void Graph::loadGraph(Graph*& g) {
         return;
     }
 
-    ifstream inFile(txt_files[choice - 1]);
+    ifstream inFile(foldername + txt_files[choice - 1]);
     if (!inFile) {
         cerr << "Error opening file for reading " << endl;
         return;
