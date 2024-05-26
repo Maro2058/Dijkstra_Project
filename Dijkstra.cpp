@@ -1,6 +1,26 @@
 // Program to find Dijkstra's shortest path using
 // priority_queue in STL f
+
 #include "Dijkstra.h"
+#include <iostream>
+#include <cstdlib>
+#include <bits/stdc++.h>
+#include<fstream>
+#include <filesystem>
+#include <SFML/Graphics.hpp>
+#include "DLL.cpp"
+#include "DLL.h"
+#include <SFML/Graphics.hpp>
+
+using namespace std;
+
+namespace fs = std::filesystem;
+
+#define INF 0x3f3f3f3f
+
+// iPair ==> Integer Pair
+typedef pair<int, int> iPair;
+
 
 template<typename T, typename Compare = std::greater<T>>
 
@@ -46,6 +66,7 @@ public:
     // function to add and remove vertex
     void addVertex(const string& vertex);
     void removeVertex(const string& vertex);
+    int getvertices()const;
     // function to remove an edge from the graph
     void removeEdge(const string& u, const string& v);
     void printPath(vector<int>& prevVertex, int i);
@@ -60,8 +81,13 @@ public:
     void displayGraph();
     void editGraph();
     void addNodeName(int index, const string& name);
+
+    void visualize();
+
+
     friend vector<string> findFile();
     Graph& operator=(const Graph& other);
+
 };
 
 Graph& Graph::operator=(const Graph& other) {
@@ -92,6 +118,12 @@ void Graph::addNodeName(int index, const string& name) {
     nameToIndex[name] = index;
     // cant add same name or same index!!
     indexToName[index] = name;
+}
+
+
+int Graph::getvertices()const
+{
+    return V;
 }
 
 void Graph::addVertex(const string& vertex) {
@@ -135,6 +167,7 @@ void Graph::removeVertex(const string& vertex) {
     // Remove all edges associated with this vertex
     for (int u = 0; u < V; u++) {
         DLLNode<pair<int, int>>* current = adj[u].begin();
+
         while (current != adj[u].end()) {
             DLLNode<pair<int, int>>*nextNode = current->next;
             if (current->info.first == index) {
@@ -145,9 +178,6 @@ void Graph::removeVertex(const string& vertex) {
             current = nextNode;
         }
     }
-
-
-
 
     auto* newGraph = new Graph(V-1);
     for (int i = 0; i < V-1; i++) {
@@ -680,6 +710,87 @@ void tempGraph(Graph*& g) {
     g->displayGraph();
 }
 
+void Graph :: visualize() {
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Graph Visualization");
+
+    std::map<int, sf::CircleShape> vertexShapes;
+    std::map<int, sf::Vector2f> vertexPositions;
+
+    float radius = 20.0f;
+    float angleStep = 360.0f / V;
+    float centerX = window.getSize().x / 2;
+    float centerY = window.getSize().y / 2;
+    float distance = 200.0f;
+
+    // Load a font
+    sf::Font font;
+    if (!font.loadFromFile("arial.ttf")) { // Ensure the font file is in the project directory
+        std::cerr << "Failed to load font 'arial.ttf'" << std::endl;
+        return;
+    }
+
+    std::map<int, sf::Text> vertexLabels;
+
+    for (int i = 0; i < V; ++i) {
+        sf::CircleShape circle(radius);
+        float angle = i * angleStep * (3.14159f / 180.0f);
+        float x = centerX + distance * cos(angle);
+        float y = centerY + distance * sin(angle);
+
+        circle.setPosition(x, y);
+        circle.setFillColor(sf::Color::Blue);
+
+        vertexShapes[i] = circle;
+        vertexPositions[i] = sf::Vector2f(x + radius, y + radius); // Center of the circle
+
+        // Create vertex label
+        sf::Text label;
+        label.setFont(font);
+        label.setString(indexToName[i]); // You can replace i with the actual vertex name if available
+        label.setCharacterSize(15);
+        label.setFillColor(sf::Color::White);
+        label.setPosition(x + radius / 2, y + radius / 2); // Adjust position as needed
+
+        vertexLabels[i] = label;
+    }
+
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        // Set background color
+        window.clear(sf::Color(50, 50, 50)); // Change RGB values for different background color
+
+        // Draw edges
+        for (int u = 0; u < V; ++u) {
+            for (DLLNode<pair<int, int>>* i = this->adj[u].begin(); i != this->adj[u].end(); i = i->next) {
+                int v = i->info.first;
+                sf::Vertex line[] = {
+                        sf::Vertex(vertexPositions[u], sf::Color::White),
+                        sf::Vertex(vertexPositions[v], sf::Color::White)
+                };
+                window.draw(line, 2, sf::Lines);
+            }
+        }
+
+        // Draw vertices
+        for (const auto& [index, shape] : vertexShapes) {
+            window.draw(shape);
+        }
+
+        // Draw vertex labels
+        for (const auto& [index, label] : vertexLabels) {
+            window.draw(label);
+        }
+
+        window.display();
+    }
+}
+
+
 void interactiveMenu(Graph*& g) {
     int choice;
     do {
@@ -760,7 +871,7 @@ void interactiveMenu(Graph*& g) {
                     break;
                 }
 
-                g->displayGraph();
+                g->visualize();
                 break;
 
             case 4:

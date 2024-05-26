@@ -46,7 +46,4 @@ private:
 };
 
 
-
-#include "DLL.cpp"
-
 #endif // DLL_H
